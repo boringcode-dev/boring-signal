@@ -5,6 +5,7 @@
 
 import {
   isDecorativePreviewImageSrc,
+  normalizeCodeLanguage,
   normalizePreviewUrl,
   type PreviewBlock,
   type PreviewSegment,
@@ -58,6 +59,7 @@ interface InlineMarks {
 
 interface FenceStart {
   marker: string;
+  language?: string;
 }
 
 interface StandaloneImage {
@@ -146,7 +148,11 @@ export function markdownToPreviewBlocks(
       index = code.nextIndex;
       const text = code.text.slice(0, MAX_BLOCK_CHARS);
       if (text !== "" && blocks.length < MAX_BLOCKS) {
-        blocks.push({ type: "code", text });
+        blocks.push({
+          type: "code",
+          text,
+          ...(fence.language === undefined ? {} : { language: fence.language }),
+        });
         totalChars += text.length;
       }
       continue;
@@ -259,8 +265,16 @@ function readCodeFence(
 }
 
 function parseFenceStart(line: string): FenceStart | null {
-  const match = /^ {0,3}(`{3,}|~{3,})/.exec(line);
-  return match ? { marker: match[1]! } : null;
+  const match = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+  if (!match) return null;
+  const info = (match[2] ?? "")
+    .trim()
+    .split(/\s+/)[0]
+    ?.replace(/^language-/, "");
+  const language = normalizeCodeLanguage(info);
+  return language === undefined
+    ? { marker: match[1]! }
+    : { marker: match[1]!, language };
 }
 
 function isFenceClose(line: string, marker: string): boolean {

@@ -26,7 +26,13 @@ export function isElement(node: HtmlNode): node is HtmlElement {
 }
 
 export function parseHtmlDocument(html: string): HtmlDocument {
-  const root = parse(html, { comment: false });
+  const root = parse(html, {
+    comment: false,
+    // node-html-parser treats <pre> as raw text by default, which leaves the
+    // nested <code> markup inside pre.textContent. Parse its children so code
+    // text arrives clean and the language class is readable.
+    blockTextElements: { script: true, noscript: true, style: true },
+  });
   return {
     body: root.querySelector("body"),
     querySelector: (selector) => root.querySelector(selector),
