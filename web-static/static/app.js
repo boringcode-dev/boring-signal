@@ -1307,10 +1307,10 @@
     }, 2200);
   };
 
-  async function copyArticleLink(url) {
+  async function copyText(text) {
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(text);
         return true;
       }
     } catch {
@@ -1319,7 +1319,7 @@
     let textarea = null;
     try {
       textarea = document.createElement("textarea");
-      textarea.value = url;
+      textarea.value = text;
       textarea.setAttribute("readonly", "");
       textarea.style.position = "fixed";
       textarea.style.opacity = "0";
@@ -1347,7 +1347,7 @@
         if (error?.name === "AbortError") return;
       }
     }
-    const copied = await copyArticleLink(target);
+    const copied = await copyText(target);
     if (copied) {
       showToast("Link copied");
     } else {
@@ -1650,6 +1650,50 @@
     if (list.childNodes.length > 0) previewContent.appendChild(list);
   };
 
+  const renderPreviewCodeBlock = (block) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "preview-panel-code";
+
+    const header = document.createElement("div");
+    header.className = "preview-panel-code-header";
+
+    const language =
+      typeof block.language === "string" ? block.language.trim() : "";
+    if (language !== "") {
+      const label = document.createElement("span");
+      label.className = "preview-panel-code-language";
+      label.textContent = language;
+      header.appendChild(label);
+    }
+
+    const copyButton = document.createElement("button");
+    copyButton.className = "preview-panel-code-copy";
+    copyButton.type = "button";
+    copyButton.textContent = "Copy";
+    copyButton.setAttribute("aria-label", "Copy code");
+    copyButton.setAttribute("aria-live", "polite");
+    let resetTimer = 0;
+    copyButton.addEventListener("click", async () => {
+      const copied = await copyText(block.text);
+      copyButton.textContent = copied ? "Copied" : "Copy failed";
+      copyButton.classList.toggle("is-copied", copied);
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        copyButton.textContent = "Copy";
+        copyButton.classList.remove("is-copied");
+      }, 1600);
+    });
+    header.appendChild(copyButton);
+
+    const pre = document.createElement("pre");
+    const code = document.createElement("code");
+    code.textContent = block.text;
+    pre.appendChild(code);
+
+    wrapper.append(header, pre);
+    previewContent.appendChild(wrapper);
+  };
+
   const renderPreviewBlocks = (blocks) => {
     if (!previewContent) return;
     previewContent.replaceChildren();
@@ -1720,14 +1764,18 @@
         continue;
       }
 
+      if (block.type === "code") {
+        if (typeof block.text !== "string" || block.text === "") continue;
+        renderPreviewCodeBlock(block);
+        continue;
+      }
+
       const tagName =
         block.type === "heading"
           ? "h3"
           : block.type === "quote"
             ? "blockquote"
-            : block.type === "code"
-              ? "pre"
-              : "p";
+            : "p";
       const element = document.createElement(tagName);
       if (Array.isArray(block.segments)) {
         renderPreviewSegments(element, block.segments);

@@ -126,6 +126,32 @@ describe("extractArticlePreview", () => {
     ]);
   });
 
+  it("keeps a language hint from the page markup", () => {
+    const preview = extractArticlePreview(
+      `<html><head><title>Worker snippets | Example</title></head><body>
+        <main><article>
+          <p>These snippets show how a Worker reads configuration and starts its local development server.</p>
+          <pre><code class="language-ts">const edge = await env.DB.prepare("select 1").first();</code></pre>
+          <pre class="lang-bash"><code>npm run dev</code></pre>
+          <pre><code class="highlight">plain text</code></pre>
+          <div class="highlight highlight-source-shell"><pre class="notranslate">npx skills add example</pre></div>
+        </article></main>
+      </body></html>`,
+      "https://example.com/snippets",
+    );
+
+    expect(preview.blocks.filter((block) => block.type === "code")).toEqual([
+      {
+        type: "code",
+        text: 'const edge = await env.DB.prepare("select 1").first();',
+        language: "ts",
+      },
+      { type: "code", text: "npm run dev", language: "bash" },
+      { type: "code", text: "plain text" },
+      { type: "code", text: "npx skills add example", language: "shell" },
+    ]);
+  });
+
   it("falls back to the meta description when no readable body exists", () => {
     const preview = extractArticlePreview(
       `<html><head>

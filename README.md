@@ -79,7 +79,7 @@ npx lighthouse https://reader.boringcode.dev --view
 - **Scheduled refresh** every 1 hour on wall-clock boundaries
 - **Manual refresh** from the header re-fetches the current feed view from backend stored items only; it does **not** re-fetch upstream sources
 - **Persisted visited-link dimming** for feed card titles across reload/reopen using local storage
-- **Optional article preview** (off by default, toggled in Reader settings) that opens a reader view beside the feed on wide screens or full-screen on phones, with inline links/emphasis, image captions, tables, publication date/reading time, a Workers AI Markdown fallback for PDFs, Office documents, and HTML pages with no readable blocks, a Browser Run fallback for JavaScript-rendered pages, source-specific Hacker News comments, and an **Open source** button
+- **Optional article preview** (off by default, toggled in Reader settings) that opens a reader view beside the feed on wide screens or full-screen on phones, with inline links/emphasis, image captions, tables, code blocks with language labels and one-tap copy, publication date/reading time, a Workers AI Markdown fallback for PDFs, Office documents, and HTML pages with no readable blocks, a Browser Run fallback for JavaScript-rendered pages, source-specific Hacker News comments, and an **Open source** button
 - **Saved articles** with an optional per-card bookmark toggle, a `Saved` filter, and a preview-panel toggle; bookmark controls are disabled by default and can be enabled in Reader settings, with saved items stored locally under `feedreader.bookmarks`
 - **PWA-ready assets and offline caching** including manifest, service worker, touch icons, cached shell assets, cached `/api/items` responses for previously visited views, a standalone launch veil, and skeleton loading states
 - **Reconnect list refresh** re-fetches the current view from backend stored items only; it does **not** refresh upstream sources
@@ -383,6 +383,7 @@ Presentation-layer note:
 - `Cmd`/`Ctrl`/`Shift`-clicking a title still opens the article in a new tab
 - the panel shows the extracted title, byline, publication date/reading time, rich text with validated inline links/emphasis/inline code, image blocks with captions and intrinsic dimensions, and semantic tables; images load directly from the source with lazy loading and no referrer; `Open source` opens the original page
 - consecutive list items render as one list and prose uses the full preview width; figures are capped in height so a single image cannot dominate the panel
+- code blocks keep the page's language hint (for example `ts` or `bash`) in a small header with a **Copy** button, and long lines scroll horizontally instead of wrapping
 - previews are source-aware: GitHub README previews drop the `GitHub - ` title prefix and decorative SVG/badge images, while Hugging Face paper previews render the abstract, authors, arXiv/PDF/project/GitHub links, and citing model, dataset, space, and collection lists instead of community comment chrome
 - Hacker News items also show a **Comments** action inside the preview and card `…` dialogs; other sources omit it
 - each card’s `…` dialog includes an **Open source** action that opens the article directly without opening the preview

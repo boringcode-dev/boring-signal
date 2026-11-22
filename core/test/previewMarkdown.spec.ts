@@ -86,6 +86,7 @@ const cached = await cache.match(request);
     expect(blocks.find((block) => block.type === "code")).toEqual({
       type: "code",
       text: "const cached = await cache.match(request);",
+      language: "js",
     });
     expect(blocks.find((block) => block.type === "image")).toEqual({
       type: "image",
@@ -100,6 +101,31 @@ const cached = await cache.match(request);
         ["US", "20ms"],
       ],
     });
+  });
+
+  it("keeps a simple fence language and ignores fence options", () => {
+    const markdown = `\`\`\`tsx title="app.tsx"
+const edge = <main />;
+\`\`\`
+
+\`\`\`js
+const demo = true;
+\`\`\`
+
+\`\`\`
+plain
+\`\`\`
+`;
+
+    const blocks = markdownToPreviewBlocks(markdown, {
+      pageUrl: "https://example.com/posts/fences",
+    });
+
+    expect(blocks).toEqual([
+      { type: "code", text: "const edge = <main />;", language: "tsx" },
+      { type: "code", text: "const demo = true;", language: "js" },
+      { type: "code", text: "plain" },
+    ]);
   });
 
   it("drops unsafe links and images while keeping readable text", () => {
@@ -195,7 +221,9 @@ const cached = await cache.match(request);
       markdownToPreviewBlocks(ordinary, {
         pageUrl: "https://example.com/posts/json-code",
       }),
-    ).toEqual([{ type: "code", text: '{"enabled":true}' }]);
+    ).toEqual([
+      { type: "code", text: '{"enabled":true}', language: "json" },
+    ]);
   });
 
   it("skips a heading that repeats the stored title", () => {
@@ -228,7 +256,7 @@ A long enough paragraph that should remain in the preview.`;
         pageUrl: "https://example.com/posts/code",
       }),
     ).toEqual([
-      { type: "code", text: "# Not a heading\n**not bold**" },
+      { type: "code", text: "# Not a heading\n**not bold**", language: "md" },
     ]);
   });
 

@@ -76,6 +76,8 @@ export interface PreviewRichTextBlock {
 export interface PreviewCodeBlock {
   type: "code";
   text: string;
+  /** Language hint from the page, already normalized for display. */
+  language?: string;
 }
 
 export interface PreviewImageBlock {
@@ -504,7 +506,12 @@ function extractBlocks(
       const text = normalizeCodeText(element.textContent);
       if (text === "") continue;
       const capped = text.slice(0, MAX_BLOCK_CHARS);
-      blocks.push({ type: "code", text: capped });
+      const language = codeLanguageFor(element);
+      blocks.push({
+        type: "code",
+        text: capped,
+        ...(language === undefined ? {} : { language }),
+      });
       totalChars += capped.length;
       if (totalChars >= MAX_TOTAL_CHARS) break;
       continue;
@@ -1231,6 +1238,29 @@ function normalizeCodeText(value: string | null | undefined): string {
     .map((line) => line.trimEnd())
     .join("\n")
     .trim();
+}
+
+/** Keep only simple tokens that are safe to show as a language label. */
+export function normalizeCodeLanguage(
+  value: string | null | undefined,
+): string | undefined {
+  const token = (value ?? "").trim().toLowerCase().replace(/^\./, "");
+  return /^[a-z0-9+#._-]{1,20}$/.test(token) ? token : undefined;
+}
+
+function codeLanguageFor(pre: HtmlElement): string | undefined {
+  const code = pre.querySelector("code");
+  for (const element of [code, pre, parentElement(pre)]) {
+    const className = element?.getAttribute("class") ?? "";
+    const languageMatch = /(?:^|\s)(?:language|lang)-([^\s]+)/i.exec(className);
+    const language = normalizeCodeLanguage(languageMatch?.[1]);
+    if (language !== undefined) return language;
+    // GitHub wraps README fences in <div class="highlight-source-*">.
+    const highlightMatch = /(?:^|\s)highlight-source-([^\s]+)/i.exec(className);
+    const highlighted = normalizeCodeLanguage(highlightMatch?.[1]);
+    if (highlighted !== undefined) return highlighted;
+  }
+  return undefined;
 }
 
 function cleanByline(value: string): string | undefined {
