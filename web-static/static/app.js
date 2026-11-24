@@ -1673,10 +1673,12 @@
   };
 
   const mermaidAssetUrl = "/static/mermaid.min.js?v=1";
+  const purifyAssetUrl = "/static/purify.min.js?v=1";
   const mermaidSources = new WeakMap();
   const mermaidRenderTokens = new WeakMap();
   const mermaidContainers = new Set();
   let mermaidLoadPromise = null;
+  let purifyLoadPromise = null;
   let mermaidRenderQueue = Promise.resolve();
   let mermaidRenderCount = 0;
 
@@ -1729,6 +1731,34 @@
     return mermaidLoadPromise;
   }
 
+  function loadPurify() {
+    if (window.DOMPurify) return Promise.resolve(window.DOMPurify);
+    if (purifyLoadPromise) return purifyLoadPromise;
+    purifyLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = purifyAssetUrl;
+      script.async = true;
+      script.addEventListener(
+        "load",
+        () => {
+          if (window.DOMPurify) resolve(window.DOMPurify);
+          else reject(new Error("DOMPurify global missing"));
+        },
+        { once: true },
+      );
+      script.addEventListener(
+        "error",
+        () => reject(new Error("DOMPurify failed to load")),
+        { once: true },
+      );
+      document.head.appendChild(script);
+    }).catch((error) => {
+      purifyLoadPromise = null;
+      throw error;
+    });
+    return purifyLoadPromise;
+  }
+
   function queueMermaidRender(task) {
     const next = mermaidRenderQueue.then(() => task());
     mermaidRenderQueue = next.catch(() => {});
@@ -1768,6 +1798,97 @@
     };
   }
 
+  function sanitizeMermaidSource(source) {
+    let cleaned = source.replace(/^\s+/, "");
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(cleaned);
+    if (frontmatter && /(^|\n)\s*(config|title)\s*:/.test(frontmatter[1] ?? "")) {
+      cleaned = cleaned.slice(frontmatter[0].length);
+    }
+    // Diagram config can downgrade securityLevel or enable HTML labels;
+    // strip every %%{...}%% directive before rendering untrusted source.
+    return cleaned.replace(/%%\{[\s\S]*?\}%%/g, "").trim();
+  }
+
+  function sanitizeMermaidSvg(svg, purify) {
+    if (!purify) throw new Error("sanitizer unavailable");
+    const parsed = new DOMParser().parseFromString(svg, "text/html");
+    const svgElement = parsed.querySelector("svg");
+    if (!svgElement) throw new Error("invalid mermaid svg");
+
+    // DOMPurify's SVG profile drops foreignObject children, which are the
+    // HTML labels. Sanitize those separately, then restore them into the
+    // sanitized SVG by slot.
+    const labelSlots = [];
+    svgElement
+      .querySelectorAll("foreignObject")
+      .forEach((foreignObject, index) => {
+        labelSlots.push(
+          purify.sanitize(foreignObject.innerHTML, {
+            USE_PROFILES: { html: true },
+            FORBID_TAGS: [
+              "style",
+              "link",
+              "meta",
+              "base",
+              "form",
+              "input",
+              "button",
+              "textarea",
+              "select",
+              "iframe",
+              "object",
+              "embed",
+              "img",
+              "picture",
+              "source",
+              "video",
+              "audio",
+              "track",
+              "canvas",
+              "svg",
+              "math",
+              "template",
+              "noscript",
+              "foreignobject",
+              "use",
+              "image",
+            ],
+            RETURN_DOM_FRAGMENT: true,
+          }),
+        );
+        foreignObject.replaceChildren();
+        foreignObject.setAttribute("data-sanitize-slot", String(index));
+      });
+
+    const sanitized = purify.sanitize(svgElement.outerHTML, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      ADD_TAGS: ["foreignObject"],
+    });
+    const cleanedDoc = new DOMParser().parseFromString(sanitized, "text/html");
+    const cleanedSvg = cleanedDoc.querySelector("svg");
+    if (!cleanedSvg) throw new Error("invalid sanitized svg");
+    cleanedSvg
+      .querySelectorAll("foreignObject[data-sanitize-slot]")
+      .forEach((foreignObject) => {
+        const slot = Number(foreignObject.getAttribute("data-sanitize-slot"));
+        const fragment = labelSlots[slot];
+        foreignObject.removeAttribute("data-sanitize-slot");
+        if (fragment?.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) return;
+        foreignObject.replaceChildren(...fragment.childNodes);
+      });
+    cleanedSvg.querySelectorAll("script").forEach((node) => node.remove());
+    cleanedSvg.querySelectorAll("style").forEach((styleNode) => {
+      const css = styleNode.textContent ?? "";
+      if (
+        /@import/i.test(css) ||
+        /url\s*\(\s*['"]?(?:https?:|\/\/|data:text\/html)/i.test(css)
+      ) {
+        styleNode.remove();
+      }
+    });
+    return cleanedSvg;
+  }
+
   function trackMermaidContainer(container, source) {
     mermaidSources.set(container, source);
     for (const existing of mermaidContainers) {
@@ -1784,19 +1905,20 @@
       container.dataset.mermaidState = "loading";
     }
     try {
-      const mermaid = await loadMermaid();
+      const [mermaid, purify] = await Promise.all([
+        loadMermaid(),
+        loadPurify(),
+      ]);
       await queueMermaidRender(async () => {
         if (mermaidRenderTokens.get(container) !== token) return;
         mermaid.initialize(mermaidThemeConfig());
         renderId = `preview-mermaid-${++mermaidRenderCount}`;
-        const { svg } = await mermaid.render(renderId, source);
+        const { svg } = await mermaid.render(
+          renderId,
+          sanitizeMermaidSource(source),
+        );
         if (mermaidRenderTokens.get(container) !== token) return;
-        // Mermaid strict mode sanitizes labels and disables click handlers.
-        // Parse the SVG inertly, then import only the element.
-        const parsed = new DOMParser().parseFromString(svg, "text/html");
-        const svgElement = parsed.querySelector("svg");
-        if (!svgElement) throw new Error("invalid mermaid svg");
-        svgElement.querySelectorAll("script").forEach((node) => node.remove());
+        const svgElement = sanitizeMermaidSvg(svg, purify);
         container.replaceChildren(document.importNode(svgElement, true));
         container.dataset.mermaidState = "ready";
       });

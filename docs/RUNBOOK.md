@@ -146,6 +146,6 @@ The launch veil and skeleton styles are part of the server-rendered HTML/CSS she
 
 - bump the `app.js?v=` value in `core/render.ts` and `web-static/service-worker.js`
 - bump `SHELL_CACHE` in `web-static/service-worker.js`
-- when replacing `web-static/static/mermaid.min.js`, bump the `mermaidAssetUrl` `?v=` value in `web-static/static/app.js`
+- when replacing `web-static/static/mermaid.min.js` or `web-static/static/purify.min.js`, bump the matching `?v=` value in `web-static/static/app.js`
 
 The service worker navigation handler is network-first, but the version bump ensures installed clients install the new shell atomically.
