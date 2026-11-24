@@ -41,7 +41,6 @@
     "[data-article-preview-toggle]",
   );
   const mermaidToggle = document.querySelector("[data-mermaid-toggle]");
-  const mermaidOption = document.querySelector("[data-mermaid-option]");
   const bookmarksToggle = document.querySelector("[data-bookmarks-toggle]");
   const pageBody = document.querySelector("[data-page-body]");
   const previewPanel = document.querySelector("[data-preview-panel]");
@@ -974,19 +973,19 @@
     }
   }
 
-  function syncMermaidOptionVisibility() {
-    if (!mermaidOption) return;
+  function syncMermaidOptionState() {
+    if (!mermaidToggle) return;
     const previewOn = articlePreviewToggle
       ? articlePreviewToggle.checked
       : articlePreviewEnabled;
-    mermaidOption.classList.toggle("is-hidden", !previewOn);
+    mermaidToggle.disabled = !previewOn;
   }
 
   function syncMermaidOption() {
     if (mermaidToggle) {
       mermaidToggle.checked = mermaidEnabled;
     }
-    syncMermaidOptionVisibility();
+    syncMermaidOptionState();
   }
 
   function applyArticlePreviewEnabledState() {
@@ -3655,10 +3654,7 @@
     });
   }
 
-  articlePreviewToggle?.addEventListener(
-    "change",
-    syncMermaidOptionVisibility,
-  );
+  articlePreviewToggle?.addEventListener("change", syncMermaidOptionState);
 
   configCloseButtons.forEach((button) => {
     button.addEventListener("click", () => {

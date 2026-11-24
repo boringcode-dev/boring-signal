@@ -195,7 +195,7 @@ export function renderIndexPage(data: PageData): string {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=8" />
     <script>${data.themeInitScript}</script>
     <style>${data.inlineCss}</style>
-    <script src="/static/app.js?v=116" defer></script>
+    <script src="/static/app.js?v=117" defer></script>
   </head>
   <body data-app-version="${escapeHtml(data.appVersion)}">
     <div class="boot-veil" data-boot-veil aria-hidden="true">
@@ -362,7 +362,7 @@ export function renderIndexPage(data: PageData): string {
                 <span class="config-option-title">Preview articles in a reader view</span>
               </span>
             </label>
-            <label class="config-option config-option--nested is-hidden" data-mermaid-option>
+            <label class="config-option" data-mermaid-option>
               <input type="checkbox" data-mermaid-toggle />
               <span class="config-option-icon" aria-hidden="true">
                 <svg class="choice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">

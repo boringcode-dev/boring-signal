@@ -361,7 +361,7 @@ Presentation-layer note:
 - `system` resolves to the device's current light/dark preference and follows changes live; existing `dark`/`light` preferences keep working
 - an inline pre-paint theme init script applies the stored preference before first paint, avoiding a light/dark flash (the script is read from `web-static/static/theme-init.js` and inlined with the stylesheet)
 - article preview is off by default and stored in `localStorage` under `feedreader.articlePreviewEnabled`
-- Mermaid diagram rendering is off by default and stored in `localStorage` under `feedreader.mermaidEnabled`; the option is nested under Article preview and only appears while preview is enabled. Enabling it lazy-loads the self-hosted Mermaid renderer (about 1 MB compressed) the first time a diagram appears in a preview
+- Mermaid diagram rendering is off by default and stored in `localStorage` under `feedreader.mermaidEnabled`; the option sits under Article preview and is disabled while preview is off. Enabling it lazy-loads the self-hosted Mermaid renderer (about 1 MB compressed) the first time a diagram appears in a preview
 - bookmark controls are off by default and stored in `localStorage` under `feedreader.bookmarksEnabled`; enabling them shows the bookmark controls and Saved filter, and disabling them hides those controls without deleting saved items
 - source-specific filters render as **real icon-only buttons**
 - `For You` shows a sparkle icon with its label; in phone landscape while preview is open it collapses to the icon only

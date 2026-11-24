@@ -931,6 +931,16 @@ button {
   border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
 }
 
+.config-option:has(input:disabled) {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.config-option:has(input:disabled):hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 .config-option input {
   margin: 0;
 }
@@ -941,10 +951,6 @@ button {
   min-width: 0;
   flex-direction: column;
   gap: 0.16rem;
-}
-
-.config-option--nested {
-  margin-left: 1.95rem;
 }
 
 .config-option-title {
