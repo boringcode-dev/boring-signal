@@ -1259,6 +1259,12 @@ function codeLanguageFor(pre: HtmlElement): string | undefined {
     const highlightMatch = /(?:^|\s)highlight-source-([^\s]+)/i.exec(className);
     const highlighted = normalizeCodeLanguage(highlightMatch?.[1]);
     if (highlighted !== undefined) return highlighted;
+    // Mermaid fences appear as <pre lang="mermaid">, class="mermaid", or
+    // inside a class="mermaid" wrapper depending on the site.
+    if (/(?:^|\s)mermaid(?:\s|$)/i.test(className)) return "mermaid";
+    if (element?.getAttribute("lang")?.trim().toLowerCase() === "mermaid") {
+      return "mermaid";
+    }
   }
   return undefined;
 }

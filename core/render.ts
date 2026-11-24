@@ -195,7 +195,7 @@ export function renderIndexPage(data: PageData): string {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=8" />
     <script>${data.themeInitScript}</script>
     <style>${data.inlineCss}</style>
-    <script src="/static/app.js?v=113" defer></script>
+    <script src="/static/app.js?v=114" defer></script>
   </head>
   <body data-app-version="${escapeHtml(data.appVersion)}">
     <div class="boot-veil" data-boot-veil aria-hidden="true">
@@ -360,6 +360,28 @@ export function renderIndexPage(data: PageData): string {
               </span>
               <span class="config-option-body">
                 <span class="config-option-title">Preview articles in a reader view</span>
+              </span>
+            </label>
+          </div>
+        </section>
+        <section class="config-section" data-mermaid-section aria-labelledby="config-mermaid-title">
+          <div class="config-section-header">
+            <h3 id="config-mermaid-title" class="config-section-title">Mermaid diagrams</h3>
+            <p class="config-section-copy">Render Mermaid diagrams inside article previews. Loads the diagram renderer on first use.</p>
+          </div>
+          <div class="config-options">
+            <label class="config-option">
+              <input type="checkbox" data-mermaid-toggle />
+              <span class="config-option-icon" aria-hidden="true">
+                <svg class="choice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                  <rect x="4" y="3.5" width="6" height="4.5" rx="1.2"/>
+                  <rect x="14" y="15.5" width="6" height="4.5" rx="1.2"/>
+                  <rect x="4" y="15.5" width="6" height="4.5" rx="1.2"/>
+                  <path d="M10 5.75h2.5a1.5 1.5 0 0 1 1.5 1.5v8.25M10 17.75h4"/>
+                </svg>
+              </span>
+              <span class="config-option-body">
+                <span class="config-option-title">Render Mermaid diagrams</span>
               </span>
             </label>
           </div>
