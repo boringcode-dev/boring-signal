@@ -943,6 +943,10 @@ button {
   gap: 0.16rem;
 }
 
+.config-option--nested {
+  margin-left: 1.95rem;
+}
+
 .config-option-title {
   color: var(--text);
   font-size: 0.92rem;

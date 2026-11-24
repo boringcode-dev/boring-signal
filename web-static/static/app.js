@@ -41,6 +41,7 @@
     "[data-article-preview-toggle]",
   );
   const mermaidToggle = document.querySelector("[data-mermaid-toggle]");
+  const mermaidOption = document.querySelector("[data-mermaid-option]");
   const bookmarksToggle = document.querySelector("[data-bookmarks-toggle]");
   const pageBody = document.querySelector("[data-page-body]");
   const previewPanel = document.querySelector("[data-preview-panel]");
@@ -973,10 +974,19 @@
     }
   }
 
+  function syncMermaidOptionVisibility() {
+    if (!mermaidOption) return;
+    const previewOn = articlePreviewToggle
+      ? articlePreviewToggle.checked
+      : articlePreviewEnabled;
+    mermaidOption.classList.toggle("is-hidden", !previewOn);
+  }
+
   function syncMermaidOption() {
     if (mermaidToggle) {
       mermaidToggle.checked = mermaidEnabled;
     }
+    syncMermaidOptionVisibility();
   }
 
   function applyArticlePreviewEnabledState() {
@@ -3644,6 +3654,11 @@
       openConfigDialog();
     });
   }
+
+  articlePreviewToggle?.addEventListener(
+    "change",
+    syncMermaidOptionVisibility,
+  );
 
   configCloseButtons.forEach((button) => {
     button.addEventListener("click", () => {
