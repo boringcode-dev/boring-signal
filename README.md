@@ -79,7 +79,7 @@ npx lighthouse https://reader.boringcode.dev --view
 - **Scheduled refresh** every 1 hour on wall-clock boundaries
 - **Manual refresh** from the header re-fetches the current feed view from backend stored items only; it does **not** re-fetch upstream sources
 - **Persisted visited-link dimming** for feed card titles across reload/reopen using local storage
-- **Optional article preview** (off by default, toggled in Reader settings) that opens a reader view beside the feed on wide screens or full-screen on phones, with inline links/emphasis, image captions, tables, code blocks with language labels and one-tap copy, publication date/reading time, a Workers AI Markdown fallback for PDFs, Office documents, and HTML pages with no readable blocks, a Browser Run fallback for JavaScript-rendered pages, source-specific Hacker News comments, and an **Open source** button
+- **Optional article preview** (off by default, toggled in Reader settings) that opens a reader view beside the feed on wide screens or full-screen on phones, with inline links/emphasis, image captions, tables, code blocks with language labels and one-tap copy, optional Mermaid diagram rendering, publication date/reading time, a Workers AI Markdown fallback for PDFs, Office documents, and HTML pages with no readable blocks, a Browser Run fallback for JavaScript-rendered pages, source-specific Hacker News comments, and an **Open source** button
 - **Saved articles** with an optional per-card bookmark toggle, a `Saved` filter, and a preview-panel toggle; bookmark controls are disabled by default and can be enabled in Reader settings, with saved items stored locally under `feedreader.bookmarks`
 - **PWA-ready assets and offline caching** including manifest, service worker, touch icons, cached shell assets, cached `/api/items` responses for previously visited views, a standalone launch veil, and skeleton loading states
 - **Reconnect list refresh** re-fetches the current view from backend stored items only; it does **not** refresh upstream sources
@@ -348,7 +348,7 @@ Presentation-layer note:
 - the configure button opens a `Reader settings` dialog
 - settings are grouped into tabs:
   - `Appearance` — Theme and UI density
-  - `Reading` — Article preview, bookmarks, and AI personalization
+  - `Reading` — Article preview (including Mermaid diagrams), bookmarks, and AI personalization
   - `Sources` — visible sources
 - tabs support click, arrow keys, Home, and End; validation jumps to `Sources` or `Reading` when that tab needs attention
 - themes are shown as a 2-column swatch grid; density options sit below in a 2-column row
@@ -361,6 +361,7 @@ Presentation-layer note:
 - `system` resolves to the device's current light/dark preference and follows changes live; existing `dark`/`light` preferences keep working
 - an inline pre-paint theme init script applies the stored preference before first paint, avoiding a light/dark flash (the script is read from `web-static/static/theme-init.js` and inlined with the stylesheet)
 - article preview is off by default and stored in `localStorage` under `feedreader.articlePreviewEnabled`
+- Mermaid diagram rendering is off by default and stored in `localStorage` under `feedreader.mermaidEnabled`; the option sits under Article preview and is disabled while preview is off. Enabling it lazy-loads the self-hosted Mermaid renderer (about 1 MB compressed) the first time a diagram appears in a preview
 - bookmark controls are off by default and stored in `localStorage` under `feedreader.bookmarksEnabled`; enabling them shows the bookmark controls and Saved filter, and disabling them hides those controls without deleting saved items
 - source-specific filters render as **real icon-only buttons**
 - `For You` shows a sparkle icon with its label; in phone landscape while preview is open it collapses to the icon only
@@ -384,6 +385,7 @@ Presentation-layer note:
 - the panel shows the extracted title, byline, publication date/reading time, rich text with validated inline links/emphasis/inline code, image blocks with captions and intrinsic dimensions, and semantic tables; images load directly from the source with lazy loading and no referrer; `Open source` opens the original page
 - consecutive list items render as one list and prose uses the full preview width; figures are capped in height so a single image cannot dominate the panel
 - code blocks keep the page's language hint (for example `ts` or `bash`) in a small header with a **Copy** button, and long lines scroll horizontally instead of wrapping
+- when Mermaid rendering is enabled, Mermaid code blocks render as diagrams with a **Source** toggle and **Copy** button; the renderer is self-hosted, loaded on first use, follows the active theme, and falls back to the source text if a diagram cannot be rendered
 - previews are source-aware: GitHub README previews drop the `GitHub - ` title prefix and decorative SVG/badge images, while Hugging Face paper previews render the abstract, authors, arXiv/PDF/project/GitHub links, and citing model, dataset, space, and collection lists instead of community comment chrome
 - Hacker News items also show a **Comments** action inside the preview and card `…` dialogs; other sources omit it
 - each card’s `…` dialog includes an **Open source** action that opens the article directly without opening the preview

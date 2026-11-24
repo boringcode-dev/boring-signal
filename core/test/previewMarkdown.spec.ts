@@ -115,6 +115,11 @@ const demo = true;
 \`\`\`
 plain
 \`\`\`
+
+\`\`\`mermaid
+graph LR
+A --> B
+\`\`\`
 `;
 
     const blocks = markdownToPreviewBlocks(markdown, {
@@ -125,6 +130,7 @@ plain
       { type: "code", text: "const edge = <main />;", language: "tsx" },
       { type: "code", text: "const demo = true;", language: "js" },
       { type: "code", text: "plain" },
+      { type: "code", text: "graph LR\nA --> B", language: "mermaid" },
     ]);
   });
 

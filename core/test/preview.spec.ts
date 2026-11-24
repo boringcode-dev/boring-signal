@@ -152,6 +152,28 @@ describe("extractArticlePreview", () => {
     ]);
   });
 
+  it("recognizes Mermaid diagrams from GitHub markup", () => {
+    const preview = extractArticlePreview(
+      `<html><head><title>Diagram notes | Example</title></head><body>
+        <main><article>
+          <p>These diagrams show how the request path flows through the system.</p>
+          <pre lang="mermaid" aria-label="Raw mermaid code">graph LR
+A --&gt; B</pre>
+          <div class="mermaid"><pre>graph TD
+X --&gt; Y</pre></div>
+          <pre lang="en">plain english text</pre>
+        </article></main>
+      </body></html>`,
+      "https://example.com/diagrams",
+    );
+
+    expect(preview.blocks.filter((block) => block.type === "code")).toEqual([
+      { type: "code", text: "graph LR\nA --> B", language: "mermaid" },
+      { type: "code", text: "graph TD\nX --> Y", language: "mermaid" },
+      { type: "code", text: "plain english text" },
+    ]);
+  });
+
   it("falls back to the meta description when no readable body exists", () => {
     const preview = extractArticlePreview(
       `<html><head>

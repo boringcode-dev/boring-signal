@@ -931,6 +931,16 @@ button {
   border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
 }
 
+.config-option:has(input:disabled) {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.config-option:has(input:disabled):hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
 .config-option input {
   margin: 0;
 }
@@ -1844,9 +1854,17 @@ body.is-dialog-open {
   white-space: nowrap;
 }
 
-.preview-panel-code-copy {
+.preview-panel-code-actions {
+  display: flex;
   flex: 0 0 auto;
+  align-items: center;
+  gap: 0.2rem;
   margin-left: auto;
+}
+
+.preview-panel-code-copy,
+.preview-panel-code-source {
+  flex: 0 0 auto;
   padding: 0.12rem 0.45rem;
   border: 1px solid transparent;
   border-radius: 0.35rem;
@@ -1861,18 +1879,42 @@ body.is-dialog-open {
 }
 
 .preview-panel-code-copy:hover,
-.preview-panel-code-copy:focus-visible {
+.preview-panel-code-copy:focus-visible,
+.preview-panel-code-source:hover,
+.preview-panel-code-source:focus-visible {
   border-color: var(--border);
   color: var(--text);
 }
 
-.preview-panel-code-copy:focus-visible {
+.preview-panel-code-copy:focus-visible,
+.preview-panel-code-source:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.preview-panel-code-copy.is-copied {
+.preview-panel-code-copy.is-copied,
+.preview-panel-code-source[aria-pressed='true'] {
   color: var(--accent);
+}
+
+.preview-panel-mermaid {
+  padding: 0.55rem 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.preview-panel-mermaid svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.preview-panel-mermaid-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
 }
 
 .preview-panel-code pre {

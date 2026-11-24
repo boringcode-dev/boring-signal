@@ -40,6 +40,7 @@
   const articlePreviewToggle = document.querySelector(
     "[data-article-preview-toggle]",
   );
+  const mermaidToggle = document.querySelector("[data-mermaid-toggle]");
   const bookmarksToggle = document.querySelector("[data-bookmarks-toggle]");
   const pageBody = document.querySelector("[data-page-body]");
   const previewPanel = document.querySelector("[data-preview-panel]");
@@ -176,6 +177,7 @@
   const interestsStorageKey = "feedreader.interests";
   const aiPersonalizationStorageKey = "feedreader.aiPersonalizationEnabled";
   const articlePreviewStorageKey = "feedreader.articlePreviewEnabled";
+  const mermaidStorageKey = "feedreader.mermaidEnabled";
   const interestsMaxLength = 300;
   const defaultInterests =
     "startups, engineering, open-source, Artificial Intelligence (AI), Machine Learning (ML)";
@@ -197,6 +199,8 @@
   let interests = loadInterests();
   let aiPersonalizationEnabled = interests !== "" && loadAiPersonalizationEnabled();
   let articlePreviewEnabled = loadArticlePreviewEnabled();
+  let mermaidEnabled = loadMermaidEnabled();
+  let currentPreviewBlocks = [];
   let personalizedActive = false;
   let installPromptHidden = loadInstallPromptHidden();
   let activeQuery = (searchInput?.value || "").trim();
@@ -827,6 +831,18 @@
     localStorage.setItem(articlePreviewStorageKey, next ? "true" : "false");
   }
 
+  function loadMermaidEnabled() {
+    try {
+      return localStorage.getItem(mermaidStorageKey) === "true";
+    } catch {
+      return false;
+    }
+  }
+
+  function persistMermaidEnabled(next) {
+    localStorage.setItem(mermaidStorageKey, next ? "true" : "false");
+  }
+
   function loadInstallPromptHidden() {
     try {
       return localStorage.getItem(installPromptHiddenStorageKey) === "true";
@@ -955,6 +971,21 @@
     if (articlePreviewToggle) {
       articlePreviewToggle.checked = articlePreviewEnabled;
     }
+  }
+
+  function syncMermaidOptionState() {
+    if (!mermaidToggle) return;
+    const previewOn = articlePreviewToggle
+      ? articlePreviewToggle.checked
+      : articlePreviewEnabled;
+    mermaidToggle.disabled = !previewOn;
+  }
+
+  function syncMermaidOption() {
+    if (mermaidToggle) {
+      mermaidToggle.checked = mermaidEnabled;
+    }
+    syncMermaidOptionState();
   }
 
   function applyArticlePreviewEnabledState() {
@@ -1650,7 +1681,373 @@
     if (list.childNodes.length > 0) previewContent.appendChild(list);
   };
 
+  const mermaidAssetUrl = "/static/mermaid.min.js?v=1";
+  const purifyAssetUrl = "/static/purify.min.js?v=1";
+  const mermaidSources = new WeakMap();
+  const mermaidRenderTokens = new WeakMap();
+  const mermaidContainers = new Set();
+  let mermaidLoadPromise = null;
+  let purifyLoadPromise = null;
+  let mermaidRenderQueue = Promise.resolve();
+  let mermaidRenderCount = 0;
+
+  const createPreviewCodeCopyButton = (source) => {
+    const copyButton = document.createElement("button");
+    copyButton.className = "preview-panel-code-copy";
+    copyButton.type = "button";
+    copyButton.textContent = "Copy";
+    copyButton.setAttribute("aria-label", "Copy code");
+    copyButton.setAttribute("aria-live", "polite");
+    let resetTimer = 0;
+    copyButton.addEventListener("click", async () => {
+      const copied = await copyText(source);
+      copyButton.textContent = copied ? "Copied" : "Copy failed";
+      copyButton.classList.toggle("is-copied", copied);
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        copyButton.textContent = "Copy";
+        copyButton.classList.remove("is-copied");
+      }, 1600);
+    });
+    return copyButton;
+  };
+
+  function loadMermaid() {
+    if (window.mermaid) return Promise.resolve(window.mermaid);
+    if (mermaidLoadPromise) return mermaidLoadPromise;
+    mermaidLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = mermaidAssetUrl;
+      script.async = true;
+      script.addEventListener(
+        "load",
+        () => {
+          if (window.mermaid) resolve(window.mermaid);
+          else reject(new Error("mermaid global missing"));
+        },
+        { once: true },
+      );
+      script.addEventListener(
+        "error",
+        () => reject(new Error("mermaid failed to load")),
+        { once: true },
+      );
+      document.head.appendChild(script);
+    }).catch((error) => {
+      mermaidLoadPromise = null;
+      throw error;
+    });
+    return mermaidLoadPromise;
+  }
+
+  function loadPurify() {
+    if (window.DOMPurify) return Promise.resolve(window.DOMPurify);
+    if (purifyLoadPromise) return purifyLoadPromise;
+    purifyLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = purifyAssetUrl;
+      script.async = true;
+      script.addEventListener(
+        "load",
+        () => {
+          if (window.DOMPurify) resolve(window.DOMPurify);
+          else reject(new Error("DOMPurify global missing"));
+        },
+        { once: true },
+      );
+      script.addEventListener(
+        "error",
+        () => reject(new Error("DOMPurify failed to load")),
+        { once: true },
+      );
+      document.head.appendChild(script);
+    }).catch((error) => {
+      purifyLoadPromise = null;
+      throw error;
+    });
+    return purifyLoadPromise;
+  }
+
+  function queueMermaidRender(task) {
+    const next = mermaidRenderQueue.then(() => task());
+    mermaidRenderQueue = next.catch(() => {});
+    return next;
+  }
+
+  function mermaidThemeConfig() {
+    const styles = getComputedStyle(root);
+    const token = (name) => styles.getPropertyValue(name).trim();
+    return {
+      startOnLoad: false,
+      securityLevel: "strict",
+      suppressErrorRendering: true,
+      theme: "base",
+      fontFamily: token("--font-ui") || "sans-serif",
+      themeVariables: {
+        background: token("--surface"),
+        primaryColor: token("--surface-raised"),
+        primaryTextColor: token("--text"),
+        primaryBorderColor: token("--border"),
+        lineColor: token("--muted"),
+        secondaryColor: token("--accent-soft"),
+        tertiaryColor: token("--surface-raised"),
+        textColor: token("--text"),
+        noteBkgColor: token("--surface-raised"),
+        noteTextColor: token("--text"),
+        noteBorderColor: token("--border"),
+        actorBkg: token("--surface-raised"),
+        actorBorder: token("--border"),
+        actorTextColor: token("--text"),
+        signalColor: token("--text"),
+        signalTextColor: token("--text"),
+        labelBoxBkgColor: token("--surface-raised"),
+        labelBoxBorderColor: token("--border"),
+        labelTextColor: token("--text"),
+      },
+    };
+  }
+
+  function sanitizeMermaidSource(source) {
+    let cleaned = source.replace(/^\s+/, "");
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(cleaned);
+    if (frontmatter && /(^|\n)\s*(config|title)\s*:/.test(frontmatter[1] ?? "")) {
+      cleaned = cleaned.slice(frontmatter[0].length);
+    }
+    // Diagram config can downgrade securityLevel or enable HTML labels;
+    // strip every %%{...}%% directive before rendering untrusted source.
+    return cleaned.replace(/%%\{[\s\S]*?\}%%/g, "").trim();
+  }
+
+  function sanitizeMermaidSvg(svg, purify) {
+    if (!purify) throw new Error("sanitizer unavailable");
+    const parsed = new DOMParser().parseFromString(svg, "text/html");
+    const svgElement = parsed.querySelector("svg");
+    if (!svgElement) throw new Error("invalid mermaid svg");
+
+    // DOMPurify's SVG profile drops foreignObject children, which are the
+    // HTML labels. Sanitize those separately, then restore them into the
+    // sanitized SVG by slot.
+    const labelSlots = [];
+    svgElement
+      .querySelectorAll("foreignObject")
+      .forEach((foreignObject, index) => {
+        labelSlots.push(
+          purify.sanitize(foreignObject.innerHTML, {
+            USE_PROFILES: { html: true },
+            FORBID_TAGS: [
+              "style",
+              "link",
+              "meta",
+              "base",
+              "form",
+              "input",
+              "button",
+              "textarea",
+              "select",
+              "iframe",
+              "object",
+              "embed",
+              "img",
+              "picture",
+              "source",
+              "video",
+              "audio",
+              "track",
+              "canvas",
+              "svg",
+              "math",
+              "template",
+              "noscript",
+              "foreignobject",
+              "use",
+              "image",
+            ],
+            RETURN_DOM_FRAGMENT: true,
+          }),
+        );
+        foreignObject.replaceChildren();
+        foreignObject.setAttribute("data-sanitize-slot", String(index));
+      });
+
+    const sanitized = purify.sanitize(svgElement.outerHTML, {
+      USE_PROFILES: { svg: true, svgFilters: true },
+      ADD_TAGS: ["foreignObject"],
+    });
+    const cleanedDoc = new DOMParser().parseFromString(sanitized, "text/html");
+    const cleanedSvg = cleanedDoc.querySelector("svg");
+    if (!cleanedSvg) throw new Error("invalid sanitized svg");
+    cleanedSvg
+      .querySelectorAll("foreignObject[data-sanitize-slot]")
+      .forEach((foreignObject) => {
+        const slot = Number(foreignObject.getAttribute("data-sanitize-slot"));
+        const fragment = labelSlots[slot];
+        foreignObject.removeAttribute("data-sanitize-slot");
+        if (fragment?.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) return;
+        foreignObject.replaceChildren(...fragment.childNodes);
+      });
+    cleanedSvg.querySelectorAll("script").forEach((node) => node.remove());
+    cleanedSvg.querySelectorAll("style").forEach((styleNode) => {
+      const css = styleNode.textContent ?? "";
+      if (
+        /@import/i.test(css) ||
+        /url\s*\(\s*['"]?(?:https?:|\/\/|data:text\/html)/i.test(css)
+      ) {
+        styleNode.remove();
+      }
+    });
+    return cleanedSvg;
+  }
+
+  function trackMermaidContainer(container, source) {
+    mermaidSources.set(container, source);
+    for (const existing of mermaidContainers) {
+      if (!existing.isConnected) mermaidContainers.delete(existing);
+    }
+    mermaidContainers.add(container);
+  }
+
+  async function renderMermaidDiagram(container, source) {
+    const token = (mermaidRenderTokens.get(container) ?? 0) + 1;
+    mermaidRenderTokens.set(container, token);
+    let renderId = "";
+    if (container.dataset.mermaidState !== "ready") {
+      container.dataset.mermaidState = "loading";
+    }
+    try {
+      const [mermaid, purify] = await Promise.all([
+        loadMermaid(),
+        loadPurify(),
+      ]);
+      await queueMermaidRender(async () => {
+        if (mermaidRenderTokens.get(container) !== token) return;
+        mermaid.initialize(mermaidThemeConfig());
+        renderId = `preview-mermaid-${++mermaidRenderCount}`;
+        const { svg } = await mermaid.render(
+          renderId,
+          sanitizeMermaidSource(source),
+        );
+        if (mermaidRenderTokens.get(container) !== token) return;
+        const svgElement = sanitizeMermaidSvg(svg, purify);
+        container.replaceChildren(document.importNode(svgElement, true));
+        container.dataset.mermaidState = "ready";
+      });
+    } catch {
+      if (mermaidRenderTokens.get(container) !== token) return;
+      if (renderId) document.getElementById(renderId)?.remove();
+      container.dataset.mermaidState = "error";
+      container.replaceChildren();
+      const message = document.createElement("p");
+      message.className = "preview-panel-mermaid-status";
+      message.textContent =
+        "Diagram could not be rendered. Use Source to read it.";
+      container.appendChild(message);
+    }
+  }
+
+  function rerenderMermaidDiagrams() {
+    if (!mermaidEnabled || !window.mermaid || mermaidContainers.size === 0) {
+      return;
+    }
+    for (const container of Array.from(mermaidContainers)) {
+      if (!container.isConnected) {
+        mermaidContainers.delete(container);
+        continue;
+      }
+      if (container.dataset.mermaidState !== "ready") continue;
+      const source = mermaidSources.get(container);
+      if (source !== undefined) {
+        void renderMermaidDiagram(container, source);
+      }
+    }
+  }
+
+  const mermaidObserver =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              mermaidObserver.unobserve(entry.target);
+              const source = mermaidSources.get(entry.target);
+              if (source !== undefined) {
+                void renderMermaidDiagram(entry.target, source);
+              }
+            }
+          },
+          { rootMargin: "240px 0px" },
+        )
+      : null;
+
+  const renderPreviewMermaidBlock = (block) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "preview-panel-code preview-panel-code--mermaid";
+
+    const header = document.createElement("div");
+    header.className = "preview-panel-code-header";
+
+    const label = document.createElement("span");
+    label.className = "preview-panel-code-language";
+    label.textContent = "mermaid";
+    header.appendChild(label);
+
+    const actions = document.createElement("span");
+    actions.className = "preview-panel-code-actions";
+
+    const sourceButton = document.createElement("button");
+    sourceButton.className = "preview-panel-code-source";
+    sourceButton.type = "button";
+    sourceButton.textContent = "Source";
+    sourceButton.setAttribute("aria-pressed", "false");
+    sourceButton.setAttribute("aria-label", "Show Mermaid source");
+    actions.appendChild(sourceButton);
+    actions.appendChild(createPreviewCodeCopyButton(block.text));
+    header.appendChild(actions);
+
+    const diagram = document.createElement("div");
+    diagram.className = "preview-panel-mermaid";
+    diagram.dataset.mermaidState = "pending";
+    const status = document.createElement("p");
+    status.className = "preview-panel-mermaid-status";
+    status.textContent = "Rendering diagram…";
+    diagram.appendChild(status);
+
+    const sourceWrap = document.createElement("div");
+    sourceWrap.className = "preview-panel-mermaid-source is-hidden";
+    const pre = document.createElement("pre");
+    const code = document.createElement("code");
+    code.textContent = block.text;
+    pre.appendChild(code);
+    sourceWrap.appendChild(pre);
+
+    sourceButton.addEventListener("click", () => {
+      const showingSource =
+        sourceButton.getAttribute("aria-pressed") === "true";
+      sourceButton.setAttribute("aria-pressed", String(!showingSource));
+      sourceButton.setAttribute(
+        "aria-label",
+        showingSource ? "Show Mermaid diagram" : "Show Mermaid source",
+      );
+      sourceWrap.classList.toggle("is-hidden", showingSource);
+      diagram.classList.toggle("is-hidden", !showingSource);
+    });
+
+    wrapper.append(header, diagram, sourceWrap);
+    previewContent.appendChild(wrapper);
+
+    trackMermaidContainer(diagram, block.text);
+    if (mermaidObserver) {
+      mermaidObserver.observe(diagram);
+    } else {
+      void renderMermaidDiagram(diagram, block.text);
+    }
+  };
+
   const renderPreviewCodeBlock = (block) => {
+    if (block.language === "mermaid" && mermaidEnabled) {
+      renderPreviewMermaidBlock(block);
+      return;
+    }
+
     const wrapper = document.createElement("div");
     wrapper.className = "preview-panel-code";
 
@@ -1666,24 +2063,10 @@
       header.appendChild(label);
     }
 
-    const copyButton = document.createElement("button");
-    copyButton.className = "preview-panel-code-copy";
-    copyButton.type = "button";
-    copyButton.textContent = "Copy";
-    copyButton.setAttribute("aria-label", "Copy code");
-    copyButton.setAttribute("aria-live", "polite");
-    let resetTimer = 0;
-    copyButton.addEventListener("click", async () => {
-      const copied = await copyText(block.text);
-      copyButton.textContent = copied ? "Copied" : "Copy failed";
-      copyButton.classList.toggle("is-copied", copied);
-      window.clearTimeout(resetTimer);
-      resetTimer = window.setTimeout(() => {
-        copyButton.textContent = "Copy";
-        copyButton.classList.remove("is-copied");
-      }, 1600);
-    });
-    header.appendChild(copyButton);
+    const actions = document.createElement("span");
+    actions.className = "preview-panel-code-actions";
+    actions.appendChild(createPreviewCodeCopyButton(block.text));
+    header.appendChild(actions);
 
     const pre = document.createElement("pre");
     const code = document.createElement("code");
@@ -1696,6 +2079,7 @@
 
   const renderPreviewBlocks = (blocks) => {
     if (!previewContent) return;
+    mermaidContainers.clear();
     previewContent.replaceChildren();
     for (let index = 0; index < blocks.length; index += 1) {
       const block = blocks[index];
@@ -2233,6 +2617,8 @@
     setPreviewChromeHidden(false);
     previewLastScrollTop = 0;
     syncThemeColor();
+    currentPreviewBlocks = [];
+    mermaidContainers.clear();
     previewContent?.replaceChildren();
     if (previewByline) {
       previewByline.textContent = "";
@@ -2364,6 +2750,7 @@
     if (previewMenuOpenLink) {
       previewMenuOpenLink.href = url;
     }
+    currentPreviewBlocks = [];
     previewContent?.replaceChildren();
     setPreviewStatus("Loading preview…", { visuallyHidden: true });
     previewScroll?.scrollTo({ top: 0 });
@@ -2390,6 +2777,7 @@
       .then((payload) => {
         if (!payload || requestId !== previewRequestSequence) return;
         const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+        currentPreviewBlocks = blocks;
         const nextTitle =
           typeof payload.title === "string" && payload.title.trim() !== ""
             ? payload.title
@@ -2683,6 +3071,7 @@
     }
     syncThemeOptions();
     syncThemeColor();
+    rerenderMermaidDiagrams();
   };
 
   window
@@ -3031,6 +3420,7 @@
     syncThemeOptions();
     syncPersonalizationOptions();
     syncArticlePreviewOption();
+    syncMermaidOption();
     configDialog?.querySelector(".config-tab-panels")?.scrollTo({ top: 0 });
     if (typeof configDialog?.showModal === "function" && !configDialog.open) {
       configDialog.showModal();
@@ -3121,6 +3511,7 @@
     nextPersonalizationEnabled,
     nextInterests,
     nextArticlePreviewEnabled,
+    nextMermaidEnabled,
     nextBookmarksEnabled,
   ) {
     const normalizedSources = normalizeSelectedSources(nextSources);
@@ -3151,6 +3542,7 @@
       nextPersonalizationEnabled !== aiPersonalizationEnabled;
     const articlePreviewEnabledChanged =
       nextArticlePreviewEnabled !== articlePreviewEnabled;
+    const mermaidEnabledChanged = nextMermaidEnabled !== mermaidEnabled;
     const bookmarksEnabledChanged =
       nextBookmarksEnabled !== bookmarksEnabled;
 
@@ -3178,6 +3570,23 @@
       applyArticlePreviewEnabledState();
       if (!articlePreviewEnabled) {
         closeArticlePreview();
+      }
+    }
+
+    if (mermaidEnabledChanged) {
+      mermaidEnabled = nextMermaidEnabled;
+      persistMermaidEnabled(mermaidEnabled);
+      const hasMermaidBlocks = currentPreviewBlocks.some(
+        (block) => block?.type === "code" && block.language === "mermaid",
+      );
+      if (
+        hasMermaidBlocks &&
+        previewPanel &&
+        !previewPanel.classList.contains("is-hidden")
+      ) {
+        const scrollTop = previewScroll?.scrollTop ?? 0;
+        renderPreviewBlocks(currentPreviewBlocks);
+        previewScroll?.scrollTo({ top: scrollTop });
       }
     }
 
@@ -3245,6 +3654,8 @@
     });
   }
 
+  articlePreviewToggle?.addEventListener("change", syncMermaidOptionState);
+
   configCloseButtons.forEach((button) => {
     button.addEventListener("click", () => {
       closeConfigDialog();
@@ -3261,6 +3672,7 @@
           aiPersonalizationToggle?.checked ?? false,
           interestsInput?.value ?? "",
           articlePreviewToggle?.checked ?? false,
+          mermaidToggle?.checked ?? false,
           bookmarksToggle?.checked ?? false,
         );
       } catch (error) {
@@ -3587,6 +3999,7 @@
   syncConfigOptions();
   syncDensityOptions();
   syncArticlePreviewOption();
+  syncMermaidOption();
   applyArticlePreviewEnabledState();
   syncBookmarksOption();
   activateConfigTab("appearance");

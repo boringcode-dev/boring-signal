@@ -127,6 +127,7 @@ Before considering any `core/render.ts` change done:
    - empty-state and error-banner markup still look sane
    - `View more` has its icon and its visibility matches whether another page exists
    - enabling article preview, clicking a card, and confirming the panel renders rich text links, images/captions (without contributor avatars), tables, reading metadata, and (for Hacker News) a Comments action in the `…` dialog; `Open source` points at the article; the active card is highlighted and previous/next move through the visible list, with Next loading the next page when the last rendered card is previewed and more pages exist
+   - enabling Mermaid rendering in Reader settings and opening a preview with a `mermaid` fence: the diagram renders in the active theme, **Source** toggles back to the fence, **Copy** copies the source, and switching themes re-renders the diagram
    - card host-row actions: the `…` dialog shows Share, Comments only for Hacker News, and Open source, and every action works without opening the preview
    - Share uses the native share sheet on supporting browsers and copies the article link otherwise; verify it from both the card `…` dialog and the preview `…` dialog
    - on a viewport 900px or narrower the preview panel is fullscreen and its footer places the bookmark, `…`, and Close after Previous/Next in both orientations; above 900px the panel is an aside and those controls stay in its header. The `…` dialog is headed by the article title with its source icon/host and a close button, with full-width action rows over the standard backdrop; it closes on X, backdrop click/Escape and leaves the preview open
@@ -145,5 +146,6 @@ The launch veil and skeleton styles are part of the server-rendered HTML/CSS she
 
 - bump the `app.js?v=` value in `core/render.ts` and `web-static/service-worker.js`
 - bump `SHELL_CACHE` in `web-static/service-worker.js`
+- when replacing `web-static/static/mermaid.min.js` or `web-static/static/purify.min.js`, bump the matching `?v=` value in `web-static/static/app.js`
 
 The service worker navigation handler is network-first, but the version bump ensures installed clients install the new shell atomically.
