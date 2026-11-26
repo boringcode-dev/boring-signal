@@ -1,13 +1,13 @@
-const SHELL_CACHE = "signal-shell-v152";
+const SHELL_CACHE = "signal-shell-v153";
 const ITEMS_CACHE = "signal-items-v25";
 const CORE_ASSETS = [
   "/",
-  "/static/app.js?v=118",
+  "/static/app.js?v=119",
   "/static/source-icons/hackernews.svg",
   "/static/source-icons/github.svg",
   "/static/source-icons/huggingface.svg",
   "/favicon.svg?v=9",
-  "/site.webmanifest?v=19",
+  "/site.webmanifest?v=20",
   "/apple-touch-icon.png?v=8",
   "/icon-192.png?v=8",
   "/icon-512.png?v=8",
