@@ -1,6 +1,6 @@
 # Rebrand and migration: `feedreader` → `signal.`
 
-Status: in progress — pre-flight and Phases 1–3 complete (2026-11-26)
+Status: in progress — pre-flight and Phases 1–4 complete (2026-11-26)
 Date: 2026-11-20
 
 This document plans the complete replacement of the `feedreader` product name and the `reader.` wordmark with `signal.` — canonical domain `signal.boringcode.dev` — including the public brand, internal identifiers, D1 data, browser storage, Cloudflare resources, the GitHub repository, and the docs.
@@ -487,7 +487,7 @@ The final URL must be `https://signal.boringcode.dev/`.
 
 ## 9. Phase 4 — GitHub and local repository
 
-- [ ] Rename the repository. From any directory:
+- [x] Rename the repository. From any directory:
 
 ```bash
 gh repo rename -R boringcode-dev/feedreader-edge boring-signal
@@ -495,23 +495,27 @@ gh repo rename -R boringcode-dev/feedreader-edge boring-signal
 
   Or, from the repository root, `gh repo rename boring-signal`. Or use GitHub → Settings → Repository name.
 
-- [ ] Update the remote:
+- [x] Update the remote:
 
 ```bash
 git remote set-url origin git@github.com:boringcode-dev/boring-signal.git
 git remote -v
 ```
 
-- [ ] Update the CI badge URL and all repository links in `README.md` and `package.json`.
-- [ ] Push the rebrand branch and open the PR. GitHub redirects old repository URLs, but update every link you control.
-- [ ] Optional: rename the local working directory after closing editors and agents:
+- [x] Update the CI badge URL and all repository links in `README.md` and `package.json`.
+- [x] Push the rebrand branch and open the PR. GitHub redirects old repository URLs, but update every link you control.
+- [ ] Optional: rename the local working directory (skipped; the working tree stays at `feedreader-edge`) after closing editors and agents:
 
 ```bash
 cd /Users/eddie/code/boringcode-dev
 mv feedreader-edge boring-signal
 ```
 
-- [ ] Reopen the repository at the new path and confirm `git status` and `git remote -v`.
+- [ ] Reopen the repository at the new path (not applicable; local path unchanged) and confirm `git status` and `git remote -v`.
+
+---
+
+> Phase 4 completed 2026-11-26. Repository renamed to `boringcode-dev/boring-signal`; the remote was updated and `chore/rebrand-signal` pushed with tracking; PR #32 is open against `main` (no merge). The optional local working-directory rename was skipped so the active checkout stays at `feedreader-edge`; badges and links were updated in Phase 1. Phase 5 verification is still required before merge.
 
 ---
 
