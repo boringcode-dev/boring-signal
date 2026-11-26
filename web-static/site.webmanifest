@@ -122,10 +122,6 @@
     {
       "protocol": "web+signal",
       "url": "/?open=%s"
-    },
-    {
-      "protocol": "web+feedreader",
-      "url": "/?open=%s"
     }
   ]
 }

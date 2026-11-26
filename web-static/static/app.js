@@ -157,39 +157,7 @@
   const reducedMotionMedia = window.matchMedia?.(
     "(prefers-reduced-motion: reduce)",
   );
-  const LEGACY_STORAGE_PREFIX = "feedreader.";
   const STORAGE_PREFIX = "signal.";
-  const MIGRATED_KEYS = [
-    "sources",
-    "uiDensity",
-    "visited",
-    "bookmarks",
-    "bookmarksEnabled",
-    "theme",
-    "interests",
-    "aiPersonalizationEnabled",
-    "articlePreviewEnabled",
-    "mermaidEnabled",
-    "installPromptHidden",
-  ];
-
-  function migrateLegacyStorage() {
-    for (const key of MIGRATED_KEYS) {
-      try {
-        const legacyKey = LEGACY_STORAGE_PREFIX + key;
-        const nextKey = STORAGE_PREFIX + key;
-        const legacyValue = localStorage.getItem(legacyKey);
-        if (legacyValue !== null && localStorage.getItem(nextKey) === null) {
-          localStorage.setItem(nextKey, legacyValue);
-        }
-      } catch {
-        // Storage can be unavailable in private windows; the app already
-        // tolerates that, so migration must not block startup.
-      }
-    }
-  }
-
-  migrateLegacyStorage();
 
   const sourceConfigStorageKey = `${STORAGE_PREFIX}sources`;
   const densityConfigStorageKey = `${STORAGE_PREFIX}uiDensity`;
