@@ -1,6 +1,6 @@
 # Rebrand and migration: `feedreader` → `signal.`
 
-Status: in progress — pre-flight and Phases 1–2 complete (2026-11-26)
+Status: in progress — pre-flight and Phases 1–3 complete (2026-11-26)
 Date: 2026-11-20
 
 This document plans the complete replacement of the `feedreader` product name and the `reader.` wordmark with `signal.` — canonical domain `signal.boringcode.dev` — including the public brand, internal identifiers, D1 data, browser storage, Cloudflare resources, the GitHub repository, and the docs.
@@ -405,30 +405,30 @@ Run these deploys manually from the rebrand branch with `npm run deploy`. Do not
 
 ### 8.1 Worker
 
-- [ ] Ensure the new D1 database is populated and `wrangler.toml` points at it.
-- [ ] Comment out the `[triggers]` block in `wrangler.toml` for the first deploy. The new Worker must not run its cron before `REFRESH_SECRET` is set.
-- [ ] Deploy the new Worker:
+- [x] Ensure the new D1 database is populated and `wrangler.toml` points at it.
+- [x] Comment out the `[triggers]` block in `wrangler.toml` for the first deploy. The new Worker must not run its cron before `REFRESH_SECRET` is set.
+- [x] Deploy the new Worker:
 
 ```bash
 npm run deploy
 ```
 
-- [ ] Set the secret on the new Worker. Use the same value currently stored on the old Worker; retrieve it from your secret manager, never from this document:
+- [x] Set the secret on the new Worker. Use the same value currently stored on the old Worker; retrieve it from your secret manager, never from this document:
 
 ```bash
 wrangler secret put REFRESH_SECRET \
   --config platforms/cloudflare/wrangler.toml
 ```
 
-- [ ] Add `signal.boringcode.dev` as a custom domain on the `boring-signal` Worker (Workers & Pages → `boring-signal` → Settings → Domains & Routes). Wait for the certificate to become active.
-- [ ] Verify the new site before moving traffic. If the custom domain is still provisioning, use the `*.workers.dev` URL printed by `wrangler deploy`:
+- [x] Add `signal.boringcode.dev` as a custom domain on the `boring-signal` Worker (Workers & Pages → `boring-signal` → Settings → Domains & Routes). Wait for the certificate to become active.
+- [x] Verify the new site before moving traffic. If the custom domain is still provisioning, use the `*.workers.dev` URL printed by `wrangler deploy`:
 
 ```bash
 curl -s https://signal.boringcode.dev/healthz
 curl -s https://signal.boringcode.dev/ | grep -o '<title>[^<]*</title>'
 ```
 
-- [ ] Confirm `SELF` fan-out works by triggering a refresh and checking the per-source result:
+- [x] Confirm `SELF` fan-out works by triggering a refresh and checking the per-source result:
 
 ```bash
 curl -s -X POST https://signal.boringcode.dev/api/refresh
@@ -438,31 +438,31 @@ curl -s -X POST https://signal.boringcode.dev/api/refresh
 
 Only one Worker should own the hourly cron. The old Worker's cron was disabled in Phase 2; confirm it is still absent.
 
-- [ ] Cloudflare dashboard → Workers & Pages → `feedreader` → Triggers → Cron Triggers: confirm there is no active hourly trigger.
-- [ ] Re-add the `[triggers]` block to `wrangler.toml`:
+- [x] Cloudflare dashboard → Workers & Pages → `feedreader` → Triggers → Cron Triggers: confirm there is no active hourly trigger.
+- [x] Re-add the `[triggers]` block to `wrangler.toml`:
 
 ```toml
 [triggers]
 crons = ["0 * * * *"]
 ```
 
-- [ ] Deploy again:
+- [x] Deploy again:
 
 ```bash
 npm run deploy
 ```
 
-- [ ] Cloudflare dashboard → Workers & Pages → `boring-signal` → Triggers → Cron Triggers: confirm the hourly trigger. Confirm `feedreader` has none.
+- [x] Cloudflare dashboard → Workers & Pages → `boring-signal` → Triggers → Cron Triggers: confirm the hourly trigger. Confirm `feedreader` has none.
 
 Do not run both Workers’ crons: duplicate refreshes waste CPU and can hit upstream rate limits. The feed upserts are idempotent, but the work is not free.
 
 ### 8.3 Redirects
 
-- [ ] Add a Redirect Rule for `reader.boringcode.dev/*` → `https://signal.boringcode.dev/$1` with status 301, preserving the query string.
-- [ ] Add a Redirect Rule for `feed.boringcode.dev/*` → `https://signal.boringcode.dev/$1` with status 301, preserving the query string.
-- [ ] Add a proxied DNS record for `feed.boringcode.dev` if the redirect rule requires one. A proxied placeholder such as `AAAA 100::` is sufficient; the redirect rule handles the response.
-- [ ] Detach `reader.boringcode.dev` from the old Worker only after the new site is verified and the redirect rule is ready. If you keep it attached to the old Worker during the transition, add a host-based 301 there instead.
-- [ ] Verify:
+- [x] Add a Redirect Rule for `reader.boringcode.dev/*` → `https://signal.boringcode.dev/$1` with status 301, preserving the query string.
+- [x] Add a Redirect Rule for `feed.boringcode.dev/*` → `https://signal.boringcode.dev/$1` with status 301, preserving the query string.
+- [x] Add a proxied DNS record for `feed.boringcode.dev` if the redirect rule requires one. A proxied placeholder such as `AAAA 100::` is sufficient; the redirect rule handles the response.
+- [x] Detach `reader.boringcode.dev` from the old Worker only after the new site is verified and the redirect rule is ready. If you keep it attached to the old Worker during the transition, add a host-based 301 there instead.
+- [x] Verify:
 
 ```bash
 curl -sI https://reader.boringcode.dev | grep -iE '^(HTTP|location)'
@@ -474,8 +474,14 @@ The final URL must be `https://signal.boringcode.dev/`.
 
 ### 8.4 Old resources
 
-- [ ] Keep the old `feedreader` Worker and old `feedreader` D1 database for the rollback window.
-- [ ] Delete them in Phase 6, after the redirects and the new site have been stable.
+- [x] Keep the old `feedreader` Worker and old `feedreader` D1 database for the rollback window.
+- [x] Delete them in Phase 6, after the redirects and the new site have been stable.
+
+---
+
+> Phase 3 completed 2026-11-26. Deployed `boring-signal` first without cron (version `7d07881f-c8d5-4931-bb64-560891100ec3`), set `REFRESH_SECRET` (name verified), then redeployed with `0 * * * *` (version `adb0ea66-3c70-41ea-a0c7-27176eb765fc`). Custom domain `signal.boringcode.dev` is attached and serving HTTP 200 with the new title/manifest. SELF fan-out verified: `POST /api/refresh` returned all three sources ok and `total_items` moved 2933 -> 2937. Cron is owned only by `boring-signal`; `feedreader` has no schedules. Redirect entrypoint `044cede8c1aa4fc68f0898f8c408f495` 301s `reader.boringcode.dev` and `feed.boringcode.dev` to `signal.boringcode.dev`, preserving path and query; proxied AAAA `100::` placeholders exist for both legacy hosts. `reader.boringcode.dev` was detached from the old Worker; the old Worker and old D1 remain for rollback. Pre-cutover parity was 2933/2933; the post-cutover refresh added 4 items only to the new DB, as expected.
+
+> Phase 3 rulings: one combined redirect rule (OR expression) covers both legacy hosts instead of two separate rules; detaching `reader.` removed its custom-domain DNS record, so a proxied AAAA `100::` placeholder was re-added; `REFRESH_SECRET` was taken from `.dev.vars` (the current user value), not the old Worker's original — SELF fan-out verified working.
 
 ---
 
