@@ -17,7 +17,7 @@ export function buildRankingPrompt(
     return `${i}: ${title}${summary ? ` — ${summary}` : ""}`;
   });
   return [
-    "You are ranking a list of feed items by relevance to a reader's stated interests.",
+    "You are ranking a list of feed items by relevance to a user's stated interests.",
     `Reader interests: ${interests.trim().slice(0, MAX_INTERESTS_LENGTH)}`,
     "Items (index: title — summary):",
     ...lines,

@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-We take security seriously. If you discover a security vulnerability in feedreader, please report it responsibly by emailing [hi@boringcode.dev](mailto:hi@boringcode.dev) instead of using the public issue tracker.
+We take security seriously. If you discover a security vulnerability in signal., please report it responsibly by emailing [hi@boringcode.dev](mailto:hi@boringcode.dev) instead of using the public issue tracker.
 
 When reporting a security issue, please include:
 
@@ -29,7 +29,7 @@ We will acknowledge your report within 48 hours and work with you to understand 
 
 ### Public exposure
 
-- the reader UI is read-only for normal users, but `POST /api/refresh` triggers upstream refresh work
+- the signal. UI is read-only for normal users, but `POST /api/refresh` triggers upstream refresh work
 - if abuse becomes a concern on a public deployment, add Cloudflare rate limiting, WAF rules, or access controls around refresh traffic
 - do not add broader write endpoints without a deliberate authentication design
 

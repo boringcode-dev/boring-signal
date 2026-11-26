@@ -48,7 +48,7 @@ const KNOWN_SOURCES = new Set(["hackernews", "github", "huggingface"]);
 // A second [triggers] cron entry for the weekly prune was tried and reverted:
 // Cloudflare's schedules API rejected the multi-cron deploy ("Some triggers
 // failed to deploy ... a request to the Cloudflare API
-// (/accounts/.../workers/scripts/feedreader/schedules) failed", no further
+// (/accounts/.../workers/scripts/<worker-name>/schedules) failed", no further
 // detail surfaced — Wrangler doesn't expose the underlying error, see
 // cloudflare/workers-sdk#14288). Instead, the existing hourly trigger does
 // double duty: every invocation checks whether it landed in the weekly prune
@@ -92,7 +92,7 @@ const HOME_CACHE_TTL_SECONDS = 300;
 const PRIVATE_NO_STORE = "private, no-store";
 const HOME_EDGE_CACHE_CONTROL = `public, max-age=${HOME_CACHE_TTL_SECONDS}`;
 
-// Reader previews are fetched on demand when the user opens the side panel.
+// Article previews are fetched on demand when the user opens the side panel.
 // The TTL split (30 minutes for content, 5 minutes for empty results) lives
 // in previewCachePolicy.ts.
 
@@ -261,7 +261,7 @@ function currentAppVersion(env: Env): string {
 }
 
 /**
- * Reader preview for the side panel. The client sends the card's href, but
+ * Article preview for the side panel. The client sends the card's href, but
  * this only fetches URLs that exactly match a stored feed item — otherwise
  * the endpoint would be an open proxy. Extraction returns plain-text blocks;
  * see core/preview.ts for the SSRF checks and byte cap.
@@ -423,7 +423,7 @@ function previewCacheRequest(target: string): Request {
   // fallback, v9 added paper resource/citation sections, v8 added arXiv
   // links, and v7 covered author bylines.
   const raw = `preview:v11:${target}`;
-  const url = `https://feedreader-internal.invalid/preview-cache?k=${encodeURIComponent(raw)}`;
+  const url = `https://signal-internal.invalid/preview-cache?k=${encodeURIComponent(raw)}`;
   return new Request(url, { method: "GET" });
 }
 
@@ -515,7 +515,7 @@ const inlineAssetCache = new Map<string, Promise<string>>();
 function loadInlineAsset(env: Env, path: string): Promise<string> {
   let pending = inlineAssetCache.get(path);
   if (!pending) {
-    pending = env.ASSETS.fetch(`https://feedreader-internal.invalid${path}`)
+    pending = env.ASSETS.fetch(`https://signal-internal.invalid${path}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`asset ${path} returned ${response.status}`);
@@ -538,7 +538,7 @@ function loadInlineAsset(env: Env, path: string): Promise<string> {
  * canonical URL; APP_VERSION invalidates the cache across deploys. */
 function homeCacheRequest(url: URL, appVersion: string): Request {
   const raw = `home:v1:${url.origin}${url.pathname}${url.search}|${appVersion}`;
-  const cacheUrl = `https://feedreader-internal.invalid/home-cache?k=${encodeURIComponent(raw)}`;
+  const cacheUrl = `https://signal-internal.invalid/home-cache?k=${encodeURIComponent(raw)}`;
   return new Request(cacheUrl, { method: "GET" });
 }
 
@@ -578,7 +578,7 @@ function itemsCacheRequest(
   // v3 invalidates cached responses produced before card comments URLs were
   // added.
   const raw = `items:v3:${source} ${sources.join(",")} ${query} ${limit} ${offset} ${freshness}`;
-  const url = `https://feedreader-internal.invalid/items-cache?k=${encodeURIComponent(raw)}`;
+  const url = `https://signal-internal.invalid/items-cache?k=${encodeURIComponent(raw)}`;
   return new Request(url, { method: "GET" });
 }
 
@@ -651,7 +651,7 @@ function cardsToJson(cards: CardView[]) {
  * (core/personalize/similarity.ts) — no LLM call needed for this step, and
  * it's robust to paraphrased interests in a way a literal cache-key string
  * match isn't. The LLM ranker then runs only as an optional "polish" pass
- * over the FEEDREADER_PERSONALIZE_POLISH_POOL_SIZE candidates (default 30,
+ * over the SIGNAL_PERSONALIZE_POLISH_POOL_SIZE candidates (default 30,
  * 0 disables it) instead of the whole candidate pool. Candidate selection
  * reserves PAGE_SIZE slots for the newest items (selectCandidates), so a
  * freshly ingested story is actually considered by the ranker rather than
@@ -762,7 +762,7 @@ async function handlePersonalize(
         interestsVector,
       );
       let polishPoolSize = parseNonNegativeInt(
-        env.FEEDREADER_PERSONALIZE_POLISH_POOL_SIZE ?? null,
+        env.SIGNAL_PERSONALIZE_POLISH_POOL_SIZE ?? null,
         30,
       );
       if (polishPoolSize > 100) polishPoolSize = 100;
@@ -861,7 +861,7 @@ function personalizeCacheRequest(
   freshness: string,
 ): Request {
   const raw = `rank:v1:${interests} ${source} ${sources.join(",")} ${freshness}`;
-  const url = `https://feedreader-internal.invalid/personalize-rank?k=${encodeURIComponent(raw)}`;
+  const url = `https://signal-internal.invalid/personalize-rank?k=${encodeURIComponent(raw)}`;
   return new Request(url, { method: "GET" });
 }
 
@@ -1019,7 +1019,7 @@ function normalizeProtocolAction(raw: string | null): {
 
   try {
     const url = new URL(raw);
-    if (url.protocol !== "web+feedreader:") {
+    if (url.protocol !== "web+signal:" && url.protocol !== "web+feedreader:") {
       return { source: "", query: "" };
     }
 

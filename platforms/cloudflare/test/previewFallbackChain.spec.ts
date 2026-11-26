@@ -16,8 +16,8 @@ function envWith(
   quickAction: (...args: unknown[]) => Promise<Response>,
 ): Env {
   return {
-    FEEDREADER_AI_PREVIEW_FALLBACK: flags.ai,
-    FEEDREADER_BROWSER_PREVIEW_FALLBACK: flags.browser,
+    SIGNAL_AI_PREVIEW_FALLBACK: flags.ai,
+    SIGNAL_BROWSER_PREVIEW_FALLBACK: flags.browser,
     AI: { toMarkdown },
     BROWSER: { quickAction },
   } as unknown as Env;

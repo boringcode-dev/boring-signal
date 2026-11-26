@@ -1,13 +1,13 @@
-const SHELL_CACHE = "reader-shell-v151";
-const ITEMS_CACHE = "reader-items-v24";
+const SHELL_CACHE = "signal-shell-v152";
+const ITEMS_CACHE = "signal-items-v25";
 const CORE_ASSETS = [
   "/",
-  "/static/app.js?v=117",
+  "/static/app.js?v=118",
   "/static/source-icons/hackernews.svg",
   "/static/source-icons/github.svg",
   "/static/source-icons/huggingface.svg",
-  "/favicon.svg?v=8",
-  "/site.webmanifest?v=18",
+  "/favicon.svg?v=9",
+  "/site.webmanifest?v=19",
   "/apple-touch-icon.png?v=8",
   "/icon-192.png?v=8",
   "/icon-512.png?v=8",
@@ -34,7 +34,7 @@ self.addEventListener("activate", (event) => {
         (await caches.keys())
           .filter(
             (key) =>
-              key.startsWith("reader-") &&
+              (key.startsWith("reader-") || key.startsWith("signal-")) &&
               ![SHELL_CACHE, ITEMS_CACHE].includes(key),
           )
           .map((key) => caches.delete(key)),

@@ -1,6 +1,6 @@
 <h1>
-  <img alt="feedreader logo" src="web-static/favicon.svg" width="70" valign="middle">
-  &nbsp;reader&thinsp;<img alt="" src="docs/assets/orange-dot.svg" width="8" height="8" valign="baseline" />
+  <img alt="signal logo" src="web-static/favicon.svg" width="70" valign="middle">
+  &nbsp;signal&thinsp;<img alt="" src="docs/assets/orange-dot.svg" width="8" height="8" valign="baseline" />
 </h1>
 
 <p>
@@ -12,23 +12,23 @@
   <img src="https://img.shields.io/badge/Cloudflare-D1-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare D1" />
   <img src="https://img.shields.io/badge/Cron-Triggers-F38020?logo=cloudflare&logoColor=white" alt="Cron Triggers" />
   <img src="https://img.shields.io/badge/Node-24-339933?logo=node.js&logoColor=white" alt="Node 24" />
-  <a href="https://github.com/boringcode-dev/feedreader-edge/actions/workflows/ci.yml"><img src="https://github.com/boringcode-dev/feedreader-edge/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
+  <a href="https://github.com/boringcode-dev/boring-signal/actions/workflows/ci.yml"><img src="https://github.com/boringcode-dev/boring-signal/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" />
 </p>
 
-![feedreader social card](web-static/og-image.png?v=3)
+![signal social card](web-static/og-image.png?v=4)
 
 ---
 
 ## Screenshot
 
-![feedreader home screen](docs/assets/feedreader-home.png?v=2)
+![signal home screen](docs/assets/signal-home.png?v=3)
 
 ---
 
 ## Performance
 
-`feedreader` is server-rendered HTML with vanilla JS/CSS — no framework runtime, no client hydration, no bundler payload. That keeps it genuinely tiny and fast, not just "fast for a SPA."
+`signal.` is server-rendered HTML with vanilla JS/CSS — no framework runtime, no client hydration, no bundler payload. That keeps it genuinely tiny and fast, not just "fast for a SPA."
 
 The home page has no render-blocking asset requests: the stylesheet and pre-paint theme bootstrap are inlined into the HTML, and the response is edge-cached per URL for five minutes. The browser-facing copy is `private, no-store`; the five-minute cache lives in the Worker Cache API. Versioned static assets are served with immutable browser caching; see [`web-static/_headers`](web-static/_headers).
 
@@ -39,7 +39,7 @@ Lighthouse against the production deployment (mobile, simulated throttling):
 Reproduce locally:
 
 ```bash
-npx lighthouse https://reader.boringcode.dev --view
+npx lighthouse https://signal.boringcode.dev --view
 ```
 
 ---
@@ -66,7 +66,7 @@ npx lighthouse https://reader.boringcode.dev --view
   - RSS-based app icon/favicon branding
   - seven themes — Auto (follows the device), Ink, Paper, Sepia, Terminal, Glacier, and Ember — with a visual swatch picker
   - inline expanding search
-  - reader settings dialog for theme, density, and source visibility
+  - settings dialog for theme, density, and source visibility
   - iPhone landscape safe-area handling so content stays clear of the notch and Dynamic Island
   - compact icon-only Install/Update and For You controls when the preview is open in phone landscape
 - **Configurable visible sources** stored in `localStorage`
@@ -79,17 +79,17 @@ npx lighthouse https://reader.boringcode.dev --view
 - **Scheduled refresh** every 1 hour on wall-clock boundaries
 - **Manual refresh** from the header re-fetches the current feed view from backend stored items only; it does **not** re-fetch upstream sources
 - **Persisted visited-link dimming** for feed card titles across reload/reopen using local storage
-- **Optional article preview** (off by default, toggled in Reader settings) that opens a reader view beside the feed on wide screens or full-screen on phones, with inline links/emphasis, image captions, tables, code blocks with language labels and one-tap copy, optional Mermaid diagram rendering, publication date/reading time, a Workers AI Markdown fallback for PDFs, Office documents, and HTML pages with no readable blocks, a Browser Run fallback for JavaScript-rendered pages, source-specific Hacker News comments, and an **Open source** button
-- **Saved articles** with an optional per-card bookmark toggle, a `Saved` filter, and a preview-panel toggle; bookmark controls are disabled by default and can be enabled in Reader settings, with saved items stored locally under `feedreader.bookmarks`
+- **Optional article preview** (off by default, toggled in Settings) that opens a article view beside the feed on wide screens or full-screen on phones, with inline links/emphasis, image captions, tables, code blocks with language labels and one-tap copy, optional Mermaid diagram rendering, publication date/reading time, a Workers AI Markdown fallback for PDFs, Office documents, and HTML pages with no readable blocks, a Browser Run fallback for JavaScript-rendered pages, source-specific Hacker News comments, and an **Open source** button
+- **Saved articles** with an optional per-card bookmark toggle, a `Saved` filter, and a preview-panel toggle; bookmark controls are disabled by default and can be enabled in Settings, with saved items stored locally under `signal.bookmarks`
 - **PWA-ready assets and offline caching** including manifest, service worker, touch icons, cached shell assets, cached `/api/items` responses for previously visited views, a standalone launch veil, and skeleton loading states
 - **Reconnect list refresh** re-fetches the current view from backend stored items only; it does **not** refresh upstream sources
 - **Cloudflare-native deployment** with Workers, D1, Cron Triggers, and Workers Static Assets
 
 ---
 
-## Why feedreader?
+## Why signal?
 
-`feedreader` is designed for people who want a small, understandable reader instead of a large feed platform.
+`signal.` is designed for people who want a small, understandable app instead of a large feed platform.
 
 It optimizes for:
 
@@ -191,7 +191,7 @@ npm test
 ```bash
 npm install
 wrangler login
-wrangler d1 create feedreader
+wrangler d1 create boring-signal
 # copy the returned database_id into platforms/cloudflare/wrangler.toml
 wrangler secret put REFRESH_SECRET --config platforms/cloudflare/wrangler.toml
 npm run db:migrate:remote
@@ -221,10 +221,10 @@ Runtime configuration:
 
 | Variable                      |           Default | Description                                                    |
 | ----------------------------- | ----------------: | -------------------------------------------------------------- |
-| `FEEDREADER_ITEMS_PER_SOURCE` |              `20` | Per-source item count used in source dashboard/health contexts |
-| `FEEDREADER_USER_AGENT`       |  `feedreader/0.1` | Outbound fetch user agent                                      |
-| `FEEDREADER_AI_PREVIEW_FALLBACK` |           `true` | Workers AI Markdown fallback for PDFs/Office documents and empty previews; `false` disables it |
-| `FEEDREADER_BROWSER_PREVIEW_FALLBACK` |      `true` | Browser Run fallback for JavaScript-rendered HTML previews; `false` disables it |
+| `SIGNAL_ITEMS_PER_SOURCE` |              `20` | Per-source item count used in source dashboard/health contexts |
+| `SIGNAL_USER_AGENT`       |  `signal/0.1` | Outbound fetch user agent                                      |
+| `SIGNAL_AI_PREVIEW_FALLBACK` |           `true` | Workers AI Markdown fallback for PDFs/Office documents and empty previews; `false` disables it |
+| `SIGNAL_BROWSER_PREVIEW_FALLBACK` |      `true` | Browser Run fallback for JavaScript-rendered HTML previews; `false` disables it |
 | `REFRESH_SECRET`              | _required secret_ | Shared secret for internal per-source refresh fan-out routes   |
 
 ---
@@ -266,11 +266,11 @@ Query params:
 
 ### `GET /api/preview`
 
-Returns a reader view for a stored feed item: rich text segments, image blocks with captions, table blocks, and publication/reading-time metadata.
+Returns a article view for a stored feed item: rich text segments, image blocks with captions, table blocks, and publication/reading-time metadata.
 
 - `url` — required; must exactly match the URL of an item currently stored in D1
 
-The Worker fetches the article with a 10-second timeout and a 400 KB HTML cap, rejects non-public hosts, and never returns upstream markup. When the built-in extractor finds no readable blocks or the response is a document (PDF/Office), the Worker can convert it through Workers AI's Markdown conversion with a 5 MB cap; if an HTML page still has no readable content, it can render the page through Browser Run. Set `FEEDREADER_AI_PREVIEW_FALLBACK=false` or `FEEDREADER_BROWSER_PREVIEW_FALLBACK=false` to disable either fallback. Inline targets and images are restricted to validated public http(s) URLs. Responses are edge-cached for 30 minutes (empty `no_content` results for 5 minutes); cache-miss previews are limited to 20 per minute per IP, while cached previews are unrestricted. The client retries a transient `503` once. Returns `404` for unknown URLs and `502` when the upstream page cannot be previewed.
+The Worker fetches the article with a 10-second timeout and a 400 KB HTML cap, rejects non-public hosts, and never returns upstream markup. When the built-in extractor finds no readable blocks or the response is a document (PDF/Office), the Worker can convert it through Workers AI's Markdown conversion with a 5 MB cap; if an HTML page still has no readable content, it can render the page through Browser Run. Set `SIGNAL_AI_PREVIEW_FALLBACK=false` or `SIGNAL_BROWSER_PREVIEW_FALLBACK=false` to disable either fallback. Inline targets and images are restricted to validated public http(s) URLs. Responses are edge-cached for 30 minutes (empty `no_content` results for 5 minutes); cache-miss previews are limited to 20 per minute per IP, while cached previews are unrestricted. The client retries a transient `503` once. Returns `404` for unknown URLs and `502` when the upstream page cannot be previewed.
 
 ### `POST /api/personalize`
 
@@ -343,9 +343,9 @@ Presentation-layer note:
 - when the browser comes back online, the no-wifi indicator disappears and the current view is re-fetched silently from `/api/items`
 - reconnect refreshes backend-stored items only; it does not trigger upstream source refetches
 
-### Reader settings dialog
+### Settings dialog
 
-- the configure button opens a `Reader settings` dialog
+- the configure button opens a `Settings` dialog
 - settings are grouped into tabs:
   - `Appearance` — Theme and UI density
   - `Reading` — Article preview (including Mermaid diagrams), bookmarks, and AI personalization
@@ -355,14 +355,14 @@ Presentation-layer note:
 - the selected theme is applied when the dialog is saved, and the settings form scrolls internally on short screens
 - clicking the dialog backdrop closes it
 - background page scrolling is locked while the dialog is open
-- selected sources are stored in `localStorage` under `feedreader.sources`
-- selected density is stored in `localStorage` under `feedreader.uiDensity`
-- selected theme is stored in `localStorage` under `feedreader.theme`; valid values are `system` (default), `dark`, `light`, `sepia`, `terminal`, `glacier`, and `ember`
+- selected sources are stored in `localStorage` under `signal.sources`
+- selected density is stored in `localStorage` under `signal.uiDensity`
+- selected theme is stored in `localStorage` under `signal.theme`; valid values are `system` (default), `dark`, `light`, `sepia`, `terminal`, `glacier`, and `ember`
 - `system` resolves to the device's current light/dark preference and follows changes live; existing `dark`/`light` preferences keep working
 - an inline pre-paint theme init script applies the stored preference before first paint, avoiding a light/dark flash (the script is read from `web-static/static/theme-init.js` and inlined with the stylesheet)
-- article preview is off by default and stored in `localStorage` under `feedreader.articlePreviewEnabled`
-- Mermaid diagram rendering is off by default and stored in `localStorage` under `feedreader.mermaidEnabled`; the option sits under Article preview and is disabled while preview is off. Enabling it lazy-loads the self-hosted Mermaid renderer (about 1 MB compressed) the first time a diagram appears in a preview
-- bookmark controls are off by default and stored in `localStorage` under `feedreader.bookmarksEnabled`; enabling them shows the bookmark controls and Saved filter, and disabling them hides those controls without deleting saved items
+- article preview is off by default and stored in `localStorage` under `signal.articlePreviewEnabled`
+- Mermaid diagram rendering is off by default and stored in `localStorage` under `signal.mermaidEnabled`; the option sits under Article preview and is disabled while preview is off. Enabling it lazy-loads the self-hosted Mermaid renderer (about 1 MB compressed) the first time a diagram appears in a preview
+- bookmark controls are off by default and stored in `localStorage` under `signal.bookmarksEnabled`; enabling them shows the bookmark controls and Saved filter, and disabling them hides those controls without deleting saved items
 - source-specific filters render as **real icon-only buttons**
 - `For You` shows a sparkle icon with its label; in phone landscape while preview is open it collapses to the icon only
 - the source dialog renders **real source icons** before each source name
@@ -377,8 +377,8 @@ Presentation-layer note:
 
 ### Article preview
 
-- when enabled in Reader settings, clicking any card (including its title) loads a reader view in a right-hand panel instead of opening a new tab
-- opening the preview immediately shows the reader skeleton, starting with a title placeholder; the provisional card title is not shown, and the fetched title/content fade in. A failed request clears the skeleton, restores the card title, and shows a readable error message
+- when enabled in Settings, clicking any card (including its title) loads a article view in a right-hand panel instead of opening a new tab
+- opening the preview immediately shows the preview skeleton, starting with a title placeholder; the provisional card title is not shown, and the fetched title/content fade in. A failed request clears the skeleton, restores the card title, and shows a readable error message
 - transient upstream `429`/`5xx` responses are retried once with jitter; blocked sources, timeouts, unsupported formats, and failed fetches get specific messages
 - the visible loading message is visually hidden while the skeleton is shown; the panel remains `aria-busy` and a live region announces the loading state
 - `Cmd`/`Ctrl`/`Shift`-clicking a title still opens the article in a new tab
@@ -399,15 +399,15 @@ Presentation-layer note:
 - at 900px or narrower the borderless panel covers the full viewport and the footer places the bookmark, `…`, and Close after Previous/Next (in both portrait and landscape). Above 900px the aside header holds the bookmark, `…`, and Close. The `…` button opens a settings-style dialog headed by the article title with its source icon/host and a close button, with the actions stacked as full-width rows over the standard backdrop (dismiss with the close button, backdrop, Escape, or by choosing an action). Content respects left/right safe-area insets in iPhone landscape; while the panel covers the viewport the `theme-color` tint matches the panel surface so the status-bar strip blends with it
 - on phones, the glass preview header and footer slide away while scrolling down and return when scrolling up; the desktop aside keeps its chrome visible
 - on phones, dragging right from the left screen edge drags the fullscreen preview with the finger and reveals the feed underneath; releasing past about 30% of the width (or a quick flick) closes the preview and returns to the same feed position, while a shorter drag springs back. Vertical drags from the edge still scroll the article, the gesture is ignored while the `…` dialog is open, and rotating cancels it. In a regular Safari tab the system edge-back gesture may take precedence; the app gesture is reliable in the installed PWA
-- preview is available on every device; phones open the reader view full-screen, and the Reading option is always shown in Reader settings
+- preview is available on every device; phones open the article view full-screen, and the Reading option is always shown in Settings
 
 ### Bookmarks
 
-- bookmark controls are off by default and can be enabled in Reader settings
+- bookmark controls are off by default and can be enabled in Settings
 - when enabled, every feed card has a bookmark toggle at the right of its host row; clicking it does not open the article
 - when enabled, the preview panel header (aside layout) or footer (fullscreen layout) has the same toggle for the article currently open
 - when enabled, a `Saved` filter at the end of the filter bar shows saved articles and their count; search filters the saved list locally
-- bookmarks store a display snapshot (title, source, brief, host) in `localStorage` under `feedreader.bookmarks`, so they survive source pruning and offline use without a server API
+- bookmarks store a display snapshot (title, source, brief, host) in `localStorage` under `signal.bookmarks`, so they survive source pruning and offline use without a server API
 - the list is capped at 500 entries; removing a bookmark updates the count and, while the Saved view is active, removes the card immediately
 - disabling bookmarks hides the card and preview toggles plus the Saved filter, leaves the Saved view if it was active, and keeps saved items in `localStorage` for when the feature is re-enabled
 - the per-card toggle is available on every device; the preview panel also exposes it while reading

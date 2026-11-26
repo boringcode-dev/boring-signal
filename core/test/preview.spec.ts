@@ -403,7 +403,7 @@ X --&gt; Y</pre></div>
         </div>
         <section>
           <h2>Models citing this paper</h2>
-          <p>Citation cards that should stay out of the reader view.</p>
+          <p>Citation cards that should stay out of the article view.</p>
         </section>
       </main></body></html>`,
       "https://huggingface.co/papers/2611.00001",
@@ -773,7 +773,7 @@ function htmlResponse(html: string, init: ResponseInit = {}): Response {
 describe("fetchArticlePreview", () => {
   it("fetches and extracts an HTML article", async () => {
     const preview = await fetchArticlePreview("https://example.com/edge", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       fetchImpl: async () => htmlResponse(ARTICLE_HTML),
     });
 
@@ -784,7 +784,7 @@ describe("fetchArticlePreview", () => {
   it("rejects non-HTML responses", async () => {
     await expect(
       fetchArticlePreview("https://example.com/file.pdf", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () =>
           new Response("%PDF-1.7", {
             headers: { "content-type": "application/pdf" },
@@ -801,7 +801,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/redirect", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => response,
       }),
     ).rejects.toBeInstanceOf(PreviewUnavailableError);
@@ -810,7 +810,7 @@ describe("fetchArticlePreview", () => {
   it("follows a redirect to another public URL", async () => {
     const calls: string[] = [];
     const preview = await fetchArticlePreview("https://example.com/start", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       fetchImpl: async (input) => {
         calls.push(input);
         if (input === "https://example.com/start") {
@@ -835,7 +835,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/redirect", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async (input) => {
           calls.push(input);
           return new Response(null, {
@@ -852,7 +852,7 @@ describe("fetchArticlePreview", () => {
   it("rejects redirect chains that exceed the limit", async () => {
     await expect(
       fetchArticlePreview("https://example.com/loop", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () =>
           new Response(null, {
             status: 302,
@@ -867,7 +867,7 @@ describe("fetchArticlePreview", () => {
     const html = `<html><body><p>Readable opening paragraph that should survive the cap.</p>${" ".repeat(400)}<p>${marker}</p></body></html>`;
 
     const preview = await fetchArticlePreview("https://example.com/long", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       maxBytes: 260,
       fetchImpl: async () => htmlResponse(html),
     });
@@ -883,7 +883,7 @@ describe("fetchArticlePreview", () => {
   it("labels blocked upstream responses with a reason", async () => {
     await expect(
       fetchArticlePreview("https://example.com/blocked", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => new Response("blocked", { status: 403 }),
       }),
     ).rejects.toMatchObject({
@@ -895,7 +895,7 @@ describe("fetchArticlePreview", () => {
   it("retries a transient upstream 503 once", async () => {
     let calls = 0;
     const preview = await fetchArticlePreview("https://example.com/busy", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       retryDelayMs: 0,
       retryJitterMs: 0,
       fetchImpl: async () => {
@@ -914,7 +914,7 @@ describe("fetchArticlePreview", () => {
     let calls = 0;
     await expect(
       fetchArticlePreview("https://example.com/down", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         retryDelayMs: 0,
         retryJitterMs: 0,
         fetchImpl: async () => {
@@ -934,7 +934,7 @@ describe("fetchArticlePreview", () => {
     timeout.name = "TimeoutError";
     await expect(
       fetchArticlePreview("https://example.com/slow", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => {
           throw timeout;
         },
@@ -946,7 +946,7 @@ describe("fetchArticlePreview", () => {
     const html = `<html><body><div>${"a".repeat(400)}</div></body></html>`;
     await expect(
       fetchArticlePreview("https://example.com/huge", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         maxBytes: 120,
         fetchImpl: async () => htmlResponse(html),
       }),
@@ -958,7 +958,7 @@ describe("fetchArticlePreview", () => {
     const bytes = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]);
 
     const preview = await fetchArticlePreview("https://example.com/paper.pdf", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       fetchImpl: async () =>
         new Response(bytes, {
           headers: { "content-type": "application/pdf; charset=binary" },
@@ -994,7 +994,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/paper.pdf", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => response(),
         fallback: async () => null,
       }),
@@ -1002,7 +1002,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/paper.pdf", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => response(),
         fallback: async () => {
           throw new Error("AI unavailable");
@@ -1016,7 +1016,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/large.pdf", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         maxFallbackBytes: 4,
         fetchImpl: async () =>
           new Response(new Uint8Array([1, 2, 3, 4, 5]), {
@@ -1037,7 +1037,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/large.pdf", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         maxFallbackBytes: 4,
         fetchImpl: async () =>
           new Response(new Uint8Array([1, 2, 3, 4, 5]), {
@@ -1060,7 +1060,7 @@ describe("fetchArticlePreview", () => {
     const inputs: PreviewFallbackInput[] = [];
 
     const preview = await fetchArticlePreview("https://example.com/shell", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       fetchImpl: async () =>
         htmlResponse("<html><body><div>tiny</div></body></html>"),
       fallback: async (input) => {
@@ -1093,7 +1093,7 @@ describe("fetchArticlePreview", () => {
     const html = `<html><body><div>${"a".repeat(400)}</div></body></html>`;
 
     const preview = await fetchArticlePreview("https://example.com/huge", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       maxBytes: 120,
       fetchImpl: async () => htmlResponse(html),
       fallback: async (input) => {
@@ -1117,7 +1117,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/huge", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         maxBytes: 120,
         fetchImpl: async () => htmlResponse(html),
         fallback: async () => null,
@@ -1129,7 +1129,7 @@ describe("fetchArticlePreview", () => {
     let called = false;
 
     const preview = await fetchArticlePreview("https://example.com/edge", {
-      userAgent: "feedreader-test",
+      userAgent: "signal-test",
       fetchImpl: async () => htmlResponse(ARTICLE_HTML),
       fallback: async () => {
         called = true;
@@ -1150,7 +1150,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/blocked", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => new Response("blocked", { status: 403 }),
         fallback,
       }),
@@ -1158,7 +1158,7 @@ describe("fetchArticlePreview", () => {
 
     await expect(
       fetchArticlePreview("https://example.com/empty", {
-        userAgent: "feedreader-test",
+        userAgent: "signal-test",
         fetchImpl: async () => htmlResponse(""),
         fallback,
       }),

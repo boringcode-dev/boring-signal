@@ -49,7 +49,7 @@ export async function browserPreviewFallback(
   input: PreviewFallbackInput,
   titleHint: string,
 ): Promise<ArticlePreview | null> {
-  if (!isBrowserFallbackEnabled(env.FEEDREADER_BROWSER_PREVIEW_FALLBACK)) {
+  if (!isBrowserFallbackEnabled(env.SIGNAL_BROWSER_PREVIEW_FALLBACK)) {
     return null;
   }
   if (input.kind !== "no_content") return null;

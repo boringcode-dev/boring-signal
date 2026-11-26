@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "reader.",
-  "short_name": "reader.",
+  "name": "Boring Signal",
+  "short_name": "signal.",
   "description": "Tiny feed reader for Hacker News, GitHub Trending, and Hugging Face Trending Papers.",
   "lang": "en",
   "dir": "ltr",
@@ -43,25 +43,25 @@
   ],
   "screenshots": [
     {
-      "src": "/manifest-assets/screenshot-wide.png?v=5",
+      "src": "/manifest-assets/screenshot-wide.png?v=6",
       "sizes": "1440x1120",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Reader desktop feed view"
+      "label": "signal. desktop feed view"
     },
     {
-      "src": "/manifest-assets/screenshot-wide-mobile.png?v=5",
+      "src": "/manifest-assets/screenshot-wide-mobile.png?v=6",
       "sizes": "1440x1120",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Reader mobile feed view"
+      "label": "signal. mobile feed view"
     },
     {
-      "src": "/manifest-assets/screenshot-mobile.png?v=6",
+      "src": "/manifest-assets/screenshot-mobile.png?v=7",
       "sizes": "430x932",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Reader mobile feed view"
+      "label": "signal. mobile feed view"
     }
   ],
   "shortcuts": [
@@ -119,6 +119,10 @@
     }
   ],
   "protocol_handlers": [
+    {
+      "protocol": "web+signal",
+      "url": "/?open=%s"
+    },
     {
       "protocol": "web+feedreader",
       "url": "/?open=%s"

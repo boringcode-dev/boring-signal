@@ -36,28 +36,40 @@ describe("renderIndexPage", () => {
     expect(html).toContain(
       "<script>document.documentElement.dataset.theme='dark';</script>",
     );
-    expect(html).toContain('/static/app.js?v=117');
+    expect(html).toContain('/static/app.js?v=118');
     expect(html).not.toContain("style.css");
     expect(html).not.toContain("theme-init.js");
   });
 
-  it("uses the dotted brand name in browser and installed-app metadata", () => {
+  it("uses the signal brand in browser and installed-app metadata", () => {
     const html = renderPage();
-    expect(html).toContain("<title>reader.</title>");
     expect(html).toContain(
-      '<meta name="application-name" content="reader." />',
+      "<title>signal. — engineering and research signals</title>",
     );
     expect(html).toContain(
-      '<meta name="apple-mobile-web-app-title" content="reader." />',
+      '<meta name="application-name" content="signal." />',
     );
     expect(html).toContain(
-      '<meta property="og:site_name" content="reader." />',
+      '<meta name="apple-mobile-web-app-title" content="signal." />',
     );
     expect(html).toContain(
-      '<meta property="og:title" content="reader. — engineering and research signals" />',
+      '<meta property="og:site_name" content="signal." />',
     );
     expect(html).toContain(
-      '<meta name="twitter:title" content="reader. — engineering and research signals" />',
+      '<meta property="og:title" content="signal. — engineering and research signals" />',
     );
+    expect(html).toContain(
+      '<meta name="twitter:title" content="signal. — engineering and research signals" />',
+    );
+    expect(html).toContain(
+      '<meta property="og:image:alt" content="signal social preview showing branded feed cards for engineering and research sources" />',
+    );
+    expect(html).toContain(
+      '<meta name="twitter:image:alt" content="signal social preview showing branded feed cards for engineering and research sources" />',
+    );
+    expect(html).toContain(
+      '<link rel="manifest" href="/site.webmanifest?v=19" />',
+    );
+    expect(html).toContain('/favicon.svg?v=9');
   });
 });

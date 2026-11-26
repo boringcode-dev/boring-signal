@@ -1,15 +1,15 @@
 {
-  "name": "feedreader",
+  "name": "boring-signal",
   "private": true,
   "description": "A tiny, Cloudflare-native feed reader for engineering and research signals.",
   "license": "MIT",
-  "homepage": "https://reader.boringcode.dev",
+  "homepage": "https://signal.boringcode.dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/boringcode-dev/feedreader-edge.git"
+    "url": "git+https://github.com/boringcode-dev/boring-signal.git"
   },
   "bugs": {
-    "url": "https://github.com/boringcode-dev/feedreader-edge/issues"
+    "url": "https://github.com/boringcode-dev/boring-signal/issues"
   },
   "type": "module",
   "engines": {
@@ -18,8 +18,8 @@
   "scripts": {
     "dev": "wrangler dev --config platforms/cloudflare/wrangler.toml",
     "deploy": "wrangler deploy --config platforms/cloudflare/wrangler.toml",
-    "db:migrate:local": "wrangler d1 migrations apply feedreader --local --config platforms/cloudflare/wrangler.toml",
-    "db:migrate:remote": "wrangler d1 migrations apply feedreader --remote --config platforms/cloudflare/wrangler.toml",
+    "db:migrate:local": "wrangler d1 migrations apply boring-signal --local --config platforms/cloudflare/wrangler.toml",
+    "db:migrate:remote": "wrangler d1 migrations apply boring-signal --remote --config platforms/cloudflare/wrangler.toml",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

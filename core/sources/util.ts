@@ -8,7 +8,7 @@ const MAX_RETRY_AFTER_MS = 5_000;
 const RETRYABLE_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
 const MAX_HTTP_ERROR_DETAIL = 200;
 const DEFAULT_SOURCE_USER_AGENT =
-  "feedreader/0.1 (+https://reader.boringcode.dev)";
+  "signal/0.1 (+https://signal.boringcode.dev)";
 const DEFAULT_SOURCE_ACCEPT =
   "application/json, text/html;q=0.9, */*;q=0.8";
 

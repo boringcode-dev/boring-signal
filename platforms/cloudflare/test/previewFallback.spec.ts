@@ -22,7 +22,7 @@ function envWith(
   toMarkdown: (...args: unknown[]) => Promise<unknown>,
 ): Env {
   return {
-    FEEDREADER_AI_PREVIEW_FALLBACK: value,
+    SIGNAL_AI_PREVIEW_FALLBACK: value,
     AI: { toMarkdown },
   } as unknown as Env;
 }
