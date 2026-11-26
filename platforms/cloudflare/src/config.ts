@@ -12,11 +12,11 @@ export interface Config {
 
 export function loadConfig(env: Env): Config {
   const itemsPerSource = Number.parseInt(
-    env.FEEDREADER_ITEMS_PER_SOURCE ?? "",
+    env.SIGNAL_ITEMS_PER_SOURCE ?? "",
     10,
   );
   const maxItemsPerSource = Number.parseInt(
-    env.FEEDREADER_MAX_ITEMS_PER_SOURCE ?? "",
+    env.SIGNAL_MAX_ITEMS_PER_SOURCE ?? "",
     10,
   );
   return {
@@ -28,6 +28,6 @@ export function loadConfig(env: Env): Config {
       Number.isFinite(maxItemsPerSource) && maxItemsPerSource > 0
         ? maxItemsPerSource
         : 1000,
-    userAgent: env.FEEDREADER_USER_AGENT?.trim() || "feedreader/0.1",
+    userAgent: env.SIGNAL_USER_AGENT?.trim() || "signal/0.1",
   };
 }

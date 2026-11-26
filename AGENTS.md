@@ -10,7 +10,7 @@ This is the single canonical AI-agent guide for this repository.
 
 ## Project overview
 
-`feedreader` is a small Cloudflare-native feed reader that aggregates Hacker News, GitHub Trending, and Hugging Face Trending Papers into a server-rendered feed backed by D1.
+`signal.` is a small Cloudflare-native feed reader that aggregates Hacker News, GitHub Trending, and Hugging Face Trending Papers into a server-rendered feed backed by D1.
 
 ## Repo layout
 

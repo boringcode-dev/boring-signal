@@ -157,14 +157,48 @@
   const reducedMotionMedia = window.matchMedia?.(
     "(prefers-reduced-motion: reduce)",
   );
-  const sourceConfigStorageKey = "feedreader.sources";
-  const densityConfigStorageKey = "feedreader.uiDensity";
-  const visitedLinksStorageKey = "feedreader.visited";
+  const LEGACY_STORAGE_PREFIX = "feedreader.";
+  const STORAGE_PREFIX = "signal.";
+  const MIGRATED_KEYS = [
+    "sources",
+    "uiDensity",
+    "visited",
+    "bookmarks",
+    "bookmarksEnabled",
+    "theme",
+    "interests",
+    "aiPersonalizationEnabled",
+    "articlePreviewEnabled",
+    "mermaidEnabled",
+    "installPromptHidden",
+  ];
+
+  function migrateLegacyStorage() {
+    for (const key of MIGRATED_KEYS) {
+      try {
+        const legacyKey = LEGACY_STORAGE_PREFIX + key;
+        const nextKey = STORAGE_PREFIX + key;
+        const legacyValue = localStorage.getItem(legacyKey);
+        if (legacyValue !== null && localStorage.getItem(nextKey) === null) {
+          localStorage.setItem(nextKey, legacyValue);
+        }
+      } catch {
+        // Storage can be unavailable in private windows; the app already
+        // tolerates that, so migration must not block startup.
+      }
+    }
+  }
+
+  migrateLegacyStorage();
+
+  const sourceConfigStorageKey = `${STORAGE_PREFIX}sources`;
+  const densityConfigStorageKey = `${STORAGE_PREFIX}uiDensity`;
+  const visitedLinksStorageKey = `${STORAGE_PREFIX}visited`;
   const visitedLinksLimit = 500;
-  const bookmarksStorageKey = "feedreader.bookmarks";
-  const bookmarksEnabledStorageKey = "feedreader.bookmarksEnabled";
+  const bookmarksStorageKey = `${STORAGE_PREFIX}bookmarks`;
+  const bookmarksEnabledStorageKey = `${STORAGE_PREFIX}bookmarksEnabled`;
   const bookmarksLimit = 500;
-  const themeStorageKey = "feedreader.theme";
+  const themeStorageKey = `${STORAGE_PREFIX}theme`;
   const themePreferences = [
     "system",
     "dark",
@@ -174,14 +208,14 @@
     "glacier",
     "ember",
   ];
-  const interestsStorageKey = "feedreader.interests";
-  const aiPersonalizationStorageKey = "feedreader.aiPersonalizationEnabled";
-  const articlePreviewStorageKey = "feedreader.articlePreviewEnabled";
-  const mermaidStorageKey = "feedreader.mermaidEnabled";
+  const interestsStorageKey = `${STORAGE_PREFIX}interests`;
+  const aiPersonalizationStorageKey = `${STORAGE_PREFIX}aiPersonalizationEnabled`;
+  const articlePreviewStorageKey = `${STORAGE_PREFIX}articlePreviewEnabled`;
+  const mermaidStorageKey = `${STORAGE_PREFIX}mermaidEnabled`;
   const interestsMaxLength = 300;
   const defaultInterests =
     "startups, engineering, open-source, Artificial Intelligence (AI), Machine Learning (ML)";
-  const installPromptHiddenStorageKey = "feedreader.installPromptHidden";
+  const installPromptHiddenStorageKey = `${STORAGE_PREFIX}installPromptHidden`;
   const loadedAppVersion = document.body.dataset.appVersion || "";
   const updateCheckIntervalMs = 15 * 60 * 1000;
 
@@ -2103,7 +2137,7 @@
           image.setAttribute("height", String(Math.round(block.height)));
         }
         // Server-validated public http(s) URLs only; direct loading is
-        // intentional (no image proxy). No-referrer keeps the reader URL out
+        // intentional (no image proxy). No-referrer keeps the article URL out
         // of the image request.
         image.referrerPolicy = "no-referrer";
         image.addEventListener("load", () => {
@@ -2835,7 +2869,7 @@
           typeof error?.previewReason === "string" ? error.previewReason : "";
         const message =
           reason === "blocked"
-            ? "This source blocks reader previews. Open the source to read the article."
+            ? "This source blocks article previews. Open the source to read the article."
             : reason === "rate_limited" ||
                 reason === "upstream_error" ||
                 reason === "timeout"
@@ -3676,7 +3710,7 @@
           bookmarksToggle?.checked ?? false,
         );
       } catch (error) {
-        showToast("Failed to apply reader settings", "error");
+        showToast("Failed to apply settings", "error");
       }
     });
   }

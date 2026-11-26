@@ -164,24 +164,24 @@ export function renderIndexPage(data: PageData): string {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>reader.</title>
-    <meta name="application-name" content="reader." />
+    <title>signal. — engineering and research signals</title>
+    <meta name="application-name" content="signal." />
     <meta name="description" content="Tiny feed reader for Hacker News, GitHub Trending, and Hugging Face Trending Papers." />
     <link rel="canonical" href="${escapeHtml(data.canonicalUrl)}" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="reader." />
-    <meta property="og:title" content="reader. — engineering and research signals" />
+    <meta property="og:site_name" content="signal." />
+    <meta property="og:title" content="signal. — engineering and research signals" />
     <meta property="og:description" content="Tiny feed reader for Hacker News, GitHub Trending, and Hugging Face Trending Papers." />
     <meta property="og:url" content="${escapeHtml(data.canonicalUrl)}" />
     <meta property="og:image" content="${escapeHtml(data.socialImageUrl)}" />
-    <meta property="og:image:alt" content="reader social preview showing branded feed cards for engineering and research sources" />
+    <meta property="og:image:alt" content="signal social preview showing branded feed cards for engineering and research sources" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="reader. — engineering and research signals" />
+    <meta name="twitter:title" content="signal. — engineering and research signals" />
     <meta name="twitter:description" content="Tiny feed reader for Hacker News, GitHub Trending, and Hugging Face Trending Papers." />
     <meta name="twitter:image" content="${escapeHtml(data.socialImageUrl)}" />
-    <meta name="twitter:image:alt" content="reader social preview showing branded feed cards for engineering and research sources" />
+    <meta name="twitter:image:alt" content="signal social preview showing branded feed cards for engineering and research sources" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0e141b" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e141b" />
@@ -189,26 +189,26 @@ export function renderIndexPage(data: PageData): string {
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="reader." />
-    <link rel="manifest" href="/site.webmanifest?v=18" />
-    <link rel="icon" href="/favicon.svg?v=8" sizes="any" type="image/svg+xml" />
+    <meta name="apple-mobile-web-app-title" content="signal." />
+    <link rel="manifest" href="/site.webmanifest?v=19" />
+    <link rel="icon" href="/favicon.svg?v=9" sizes="any" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=8" />
     <script>${data.themeInitScript}</script>
     <style>${data.inlineCss}</style>
-    <script src="/static/app.js?v=117" defer></script>
+    <script src="/static/app.js?v=118" defer></script>
   </head>
   <body data-app-version="${escapeHtml(data.appVersion)}">
     <div class="boot-veil" data-boot-veil aria-hidden="true">
       <div class="boot-veil-brand">
-        <img class="boot-veil-mark" src="/favicon.svg?v=8" alt="" aria-hidden="true" />
-        <span class="boot-veil-wordmark">reader<span class="boot-veil-dot">.</span></span>
+        <img class="boot-veil-mark" src="/favicon.svg?v=9" alt="" aria-hidden="true" />
+        <span class="boot-veil-wordmark">signal<span class="boot-veil-dot">.</span></span>
       </div>
       <span class="boot-veil-track" aria-hidden="true"><span class="boot-veil-bar"></span></span>
     </div>
     <header class="shell page-header">
       <div class="toast" data-toast role="status" aria-live="polite"></div>
       <div class="header-top">
-        <h1 class="brand"><img class="brand-mark" src="/favicon.svg?v=8" alt="" aria-hidden="true" /><span>reader</span></h1>
+        <h1 class="brand"><img class="brand-mark" src="/favicon.svg?v=9" alt="" aria-hidden="true" /><span>signal</span></h1>
         <div class="header-actions">
           <span class="connection-indicator is-hidden" data-connection-indicator role="img" aria-label="Internet disconnected" title="Internet disconnected">
             <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -228,7 +228,7 @@ export function renderIndexPage(data: PageData): string {
             </svg>
             <span>New version</span>
           </button>
-          <button class="pill-button install-button is-hidden" type="button" data-install-button aria-label="Install reader" title="Install reader">
+          <button class="pill-button install-button is-hidden" type="button" data-install-button aria-label="Install signal." title="Install signal.">
             <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3.5v10.6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/>
               <path d="M7.8 10.7l4.2 4.2 4.2-4.2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
@@ -242,7 +242,7 @@ export function renderIndexPage(data: PageData): string {
               <path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
             </svg>
           </button>
-          <button class="icon-button config-toggle" type="button" data-source-config-open aria-label="Open reader settings" title="Open reader settings">
+          <button class="icon-button config-toggle" type="button" data-source-config-open aria-label="Open settings" title="Open settings">
             <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 7h8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/>
               <path d="M16 7h4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"/>
@@ -265,9 +265,9 @@ export function renderIndexPage(data: PageData): string {
         </div>
         <div class="search-cluster">
           <form class="search-form${searchFormOpenClass}" data-search-form role="search" method="get" action="/">
-            <label class="sr-only" for="feedreader-search">Search feed</label>
+            <label class="sr-only" for="signal-search">Search feed</label>
             <input type="hidden" name="source" value="${hiddenSourceValue}" data-search-source />
-            <input id="feedreader-search" class="search-input" type="search" name="q" value="${escapeHtml(data.searchQuery)}" placeholder="Search title, summary, author, host" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" data-search-input />
+            <input id="signal-search" class="search-input" type="search" name="q" value="${escapeHtml(data.searchQuery)}" placeholder="Search title, summary, author, host" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search" data-search-input />
           </form>
           <button class="icon-button search-toggle${searchToggleActiveClass}" type="button" data-search-toggle aria-label="${searchToggleLabel}" aria-expanded="${searchToggleExpanded}" title="${searchToggleLabel}">
             <svg class="theme-icon search-icon-search" viewBox="0 0 24 24" aria-hidden="true">
@@ -286,16 +286,16 @@ export function renderIndexPage(data: PageData): string {
     <dialog class="config-dialog" data-source-config-dialog>
       <form class="config-dialog-form config-dialog-form--settings" method="dialog">
         <div class="config-dialog-header">
-          <h2>Reader settings</h2>
-          <button class="icon-button config-close" type="button" data-source-config-close aria-label="Close reader settings" title="Close reader settings">
+          <h2>Settings</h2>
+          <button class="icon-button config-close" type="button" data-source-config-close aria-label="Close settings" title="Close settings">
             <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 6l12 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
               <path d="M18 6L6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
             </svg>
           </button>
         </div>
-        <p class="config-dialog-copy">Adjust the reader's appearance, reading, personalization, and sources.</p>
-        <div class="config-tabs" role="tablist" aria-label="Reader settings sections">
+        <p class="config-dialog-copy">Adjust appearance, reading, personalization, and sources.</p>
+        <div class="config-tabs" role="tablist" aria-label="Settings sections">
           <button class="config-tab" id="config-tab-appearance" type="button" role="tab" aria-selected="true" aria-controls="config-panel-appearance" data-config-tab="appearance">Appearance</button>
           <button class="config-tab" id="config-tab-reading" type="button" role="tab" aria-selected="false" aria-controls="config-panel-reading" data-config-tab="reading" tabindex="-1">Reading</button>
           <button class="config-tab" id="config-tab-sources" type="button" role="tab" aria-selected="false" aria-controls="config-panel-sources" data-config-tab="sources" tabindex="-1">Sources</button>
@@ -347,7 +347,7 @@ export function renderIndexPage(data: PageData): string {
         <section class="config-section" data-article-preview-section aria-labelledby="config-reading-title">
           <div class="config-section-header">
             <h3 id="config-reading-title" class="config-section-title">Article preview</h3>
-            <p class="config-section-copy">Read articles in a reader view without leaving the feed.</p>
+            <p class="config-section-copy">Read articles in an article view without leaving the feed.</p>
           </div>
           <div class="config-options">
             <label class="config-option">
@@ -359,7 +359,7 @@ export function renderIndexPage(data: PageData): string {
                 </svg>
               </span>
               <span class="config-option-body">
-                <span class="config-option-title">Preview articles in a reader view</span>
+                <span class="config-option-title">Preview articles in an article view</span>
               </span>
             </label>
             <label class="config-option" data-mermaid-option>
@@ -475,7 +475,7 @@ export function renderIndexPage(data: PageData): string {
     <dialog class="config-dialog install-dialog" data-install-dialog>
       <form class="config-dialog-form" method="dialog">
         <div class="config-dialog-header">
-          <h2>Install reader</h2>
+          <h2>Install signal.</h2>
           <button class="icon-button config-close" type="button" data-install-dialog-close aria-label="Close install prompt" title="Close install prompt">
             <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 6l12 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
@@ -483,10 +483,10 @@ export function renderIndexPage(data: PageData): string {
             </svg>
           </button>
         </div>
-        <img class="install-dialog-screenshot" data-install-screenshot-mobile src="/manifest-assets/screenshot-mobile.png?v=6" alt="reader running as an installed app on mobile" width="430" height="932" loading="lazy" />
-        <img class="install-dialog-screenshot install-dialog-screenshot-tablet is-hidden" data-install-screenshot-tablet src="/manifest-assets/screenshot-tablet.png?v=5" alt="reader running as an installed app on iPad" width="820" height="1180" loading="lazy" />
-        <img class="install-dialog-screenshot install-dialog-screenshot-desktop is-hidden" data-install-screenshot-desktop src="/manifest-assets/screenshot-wide.png?v=5" alt="reader running as an installed app on desktop" width="1440" height="1120" loading="lazy" />
-        <p class="config-dialog-copy">Add reader to your home screen for a faster, full-screen experience with offline access to your last feed.</p>
+        <img class="install-dialog-screenshot" data-install-screenshot-mobile src="/manifest-assets/screenshot-mobile.png?v=7" alt="signal running as an installed app on mobile" width="430" height="932" loading="lazy" />
+        <img class="install-dialog-screenshot install-dialog-screenshot-tablet is-hidden" data-install-screenshot-tablet src="/manifest-assets/screenshot-tablet.png?v=6" alt="signal running as an installed app on iPad" width="820" height="1180" loading="lazy" />
+        <img class="install-dialog-screenshot install-dialog-screenshot-desktop is-hidden" data-install-screenshot-desktop src="/manifest-assets/screenshot-wide.png?v=6" alt="signal running as an installed app on desktop" width="1440" height="1120" loading="lazy" />
+        <p class="config-dialog-copy">Add signal to your home screen for a faster, full-screen experience with offline access to your last feed.</p>
         <ol class="install-steps is-hidden" data-install-steps>
           <li>
             Tap the Share icon
@@ -541,7 +541,7 @@ ${errorsBlock}
         </button>
       </div>
       <footer class="site-footer">
-        <p><span class="footer-copyright">© ${data.currentYear}</span><span class="footer-sep">·</span><a class="footer-link" href="https://github.com/boringcode-dev/feedreader-edge" target="_blank" rel="noreferrer"><img class="footer-github-mark" src="/static/source-icons/github.svg" alt="" aria-hidden="true" /><span>GitHub</span></a></p>
+        <p><span class="footer-copyright">© ${data.currentYear} · signal. is a boringcode project</span><span class="footer-sep">·</span><a class="footer-link" href="https://github.com/boringcode-dev/boring-signal" target="_blank" rel="noreferrer"><img class="footer-github-mark" src="/static/source-icons/github.svg" alt="" aria-hidden="true" /><span>GitHub</span></a></p>
       </footer>
       </div>
       <aside class="preview-panel is-hidden" data-preview-panel aria-label="Article preview">

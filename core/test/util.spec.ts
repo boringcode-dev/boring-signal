@@ -72,7 +72,7 @@ describe("getWithRetry", () => {
 
     await getWithRetry("https://example.com");
 
-    expect(headers?.get("user-agent")).toContain("feedreader/0.1");
+    expect(headers?.get("user-agent")).toContain("signal/0.1");
     expect(headers?.get("accept")).toContain("application/json");
   });
 

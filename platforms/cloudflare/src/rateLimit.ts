@@ -37,7 +37,7 @@ export async function takeRateLimit(
   const window = Math.floor(nowMs / windowMs);
   const key = `rate-limit:v1:${options.namespace}:${clientIp}:${window}`;
   const cacheRequest = new Request(
-    `https://feedreader-internal.invalid/rate-limit?k=${encodeURIComponent(key)}`,
+    `https://signal-internal.invalid/rate-limit?k=${encodeURIComponent(key)}`,
     { method: "GET" },
   );
 

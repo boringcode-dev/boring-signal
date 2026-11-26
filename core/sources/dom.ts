@@ -1,5 +1,5 @@
 // Thin wrapper around node-html-parser — the one HTML-parsing dependency in
-// this codebase, used by github.ts and the reader-view extractor. Isolated
+// this codebase, used by github.ts and the article-view extractor. Isolated
 // here so swapping parsers later only touches this file.
 //
 // node-html-parser exposes a small DOM-like surface (querySelector,

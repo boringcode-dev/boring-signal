@@ -1,4 +1,4 @@
-name = "feedreader"
+name = "boring-signal"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
@@ -36,8 +36,8 @@ binding = "ASSETS"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "feedreader"
-database_id = "0afd7879-f7cd-4d44-a077-3c40211dee20"
+database_name = "boring-signal"
+database_id = "085fdcd6-5e07-475c-979f-b89c7add0bc1"
 migrations_dir = "migrations"
 
 # Self-binding used to fan out per-source refreshes as fresh Worker
@@ -45,7 +45,7 @@ migrations_dir = "migrations"
 # public internet, which would require hardcoding a hostname.
 [[services]]
 binding = "SELF"
-service = "feedreader"
+service = "boring-signal"
 
 # Workers AI binding for the "For You" personalization ranker (see
 # platforms/cloudflare/src/llmRanker.ts). First-party binding — no secret to
@@ -61,28 +61,28 @@ binding = "BROWSER"
 
 [vars]
 APP_VERSION = "dev"
-FEEDREADER_ITEMS_PER_SOURCE = "20"
-FEEDREADER_USER_AGENT = "feedreader/0.1"
+SIGNAL_ITEMS_PER_SOURCE = "20"
+SIGNAL_USER_AGENT = "signal/0.1"
 # Per-source row cap enforced by the weekly prune window inside the hourly
 # cron handler (see src/index.ts's isWeeklyPruneWindow and docs/RUNBOOK.md)
 # — keeps the items table, and every full-table-scan query against it,
 # bounded as more sources are added.
-FEEDREADER_MAX_ITEMS_PER_SOURCE = "1000"
+SIGNAL_MAX_ITEMS_PER_SOURCE = "1000"
 # Size of the candidate pool the "For You" LLM polish pass sees per
 # /api/personalize call (0 disables the LLM polish pass, serving similarity
 # order on its own) — bounds prompt size and Workers AI cost. The newest
 # PAGE_SIZE items are always included so fresh content is actually ranked;
 # the remaining slots are filled from the top similarity hits. See
 # src/index.ts's handlePersonalize and src/embedder.ts.
-FEEDREADER_PERSONALIZE_POLISH_POOL_SIZE = "30"
+SIGNAL_PERSONALIZE_POLISH_POOL_SIZE = "30"
 # Workers AI Markdown Conversion fallback for previews the built-in extractor
 # can't read (PDFs/Office documents, JavaScript shells, truncated bodies).
 # Set to "false" to disable it without a code change.
-FEEDREADER_AI_PREVIEW_FALLBACK = "true"
+SIGNAL_AI_PREVIEW_FALLBACK = "true"
 # Browser Run fallback for HTML pages that still have no readable content
 # after the static extractor and AI fallback. Runs only on a preview cache
 # miss and is cached for 30 minutes. Set to "false" to disable it.
-FEEDREADER_BROWSER_PREVIEW_FALLBACK = "true"
+SIGNAL_BROWSER_PREVIEW_FALLBACK = "true"
 
 # REFRESH_SECRET is a secret, not a var — set it with:
 #   wrangler secret put REFRESH_SECRET --config platforms/cloudflare/wrangler.toml

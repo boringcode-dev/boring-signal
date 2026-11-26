@@ -15,7 +15,7 @@ function envWith(
   quickAction: (action: string, options: unknown) => Promise<Response>,
 ): Env {
   return {
-    FEEDREADER_BROWSER_PREVIEW_FALLBACK: flag,
+    SIGNAL_BROWSER_PREVIEW_FALLBACK: flag,
     BROWSER: { quickAction },
   } as unknown as Env;
 }

@@ -11,8 +11,8 @@ export function createPreviewFallback(
   env: Env,
   titleHint: string,
 ): PreviewFallback | undefined {
-  const aiEnabled = isEnabled(env.FEEDREADER_AI_PREVIEW_FALLBACK);
-  const browserEnabled = isEnabled(env.FEEDREADER_BROWSER_PREVIEW_FALLBACK);
+  const aiEnabled = isEnabled(env.SIGNAL_AI_PREVIEW_FALLBACK);
+  const browserEnabled = isEnabled(env.SIGNAL_BROWSER_PREVIEW_FALLBACK);
   if (!aiEnabled && !browserEnabled) return undefined;
 
   return async (input) => {

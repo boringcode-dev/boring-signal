@@ -44,7 +44,7 @@ const MIN_PARAGRAPH_CHARS = 25;
 // An <article> with real prose is almost always the page's content, even
 // though its parent <main> scores at least as high (the article's text is a
 // subset of the parent's). Prefer it once it clears this bar, so pages like
-// GitHub don't leak repository chrome into the reader view.
+// GitHub don't leak repository chrome into the article view.
 const MIN_ARTICLE_SCORE = 300;
 
 // One comma-separated selector lets node-html-parser traverse the tree once
@@ -829,7 +829,7 @@ function resolveImageUrl(
 }
 
 /**
- * True for interface chrome that should never become a reader-view figure.
+ * True for interface chrome that should never become a article-view figure.
  * Shared with the Markdown fallback mapper so both extractors apply the same
  * avatar/wordmark/badge policy.
  */
@@ -869,7 +869,7 @@ function isAvatarImageSrc(rawUrl: string): boolean {
 }
 
 /**
- * README badges and wordmarks dominate a reader view when they are stretched
+ * README badges and wordmarks dominate a article view when they are stretched
  * to the panel width. They are interface chrome, not article figures.
  */
 function isDecorativeImageSrc(rawUrl: string): boolean {
@@ -981,7 +981,7 @@ function isHuggingFacePaperPage(pageUrl: string): boolean {
 
 /**
  * Paper pages mix the abstract with a community thread and citation cards in
- * one document. Start at the "Abstract" section so the reader view keeps the
+ * one document. Start at the "Abstract" section so the article view keeps the
  * paper itself instead of the surrounding discussion chrome.
  */
 function extractHuggingFacePaperByline(document: HtmlDocument): string {

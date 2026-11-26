@@ -75,7 +75,7 @@ export async function aiPreviewFallback(
   input: PreviewFallbackInput,
   titleHint: string,
 ): Promise<ArticlePreview | null> {
-  const fallbackFlag = (env.FEEDREADER_AI_PREVIEW_FALLBACK ?? "true")
+  const fallbackFlag = (env.SIGNAL_AI_PREVIEW_FALLBACK ?? "true")
     .trim()
     .toLowerCase();
   if (fallbackFlag === "false") return null;
@@ -199,7 +199,7 @@ function urlExtension(rawUrl: string): string {
 /**
  * PDF conversion emits a heading for the uploaded filename and for each page
  * ("Page 1", "Page 2", ...). Neither is article content; drop them so the
- * reader view starts with the paper's text.
+ * article view starts with the paper's text.
  */
 function cleanConvertedBlocks(
   blocks: PreviewBlock[],

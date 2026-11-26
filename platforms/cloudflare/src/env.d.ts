@@ -12,18 +12,18 @@ export interface Env {
   BROWSER: BrowserRun;
   REFRESH_SECRET: string;
   APP_VERSION?: string;
-  FEEDREADER_ITEMS_PER_SOURCE?: string;
-  FEEDREADER_USER_AGENT?: string;
-  FEEDREADER_MAX_ITEMS_PER_SOURCE?: string;
+  SIGNAL_ITEMS_PER_SOURCE?: string;
+  SIGNAL_USER_AGENT?: string;
+  SIGNAL_MAX_ITEMS_PER_SOURCE?: string;
   /** Size of the top-similarity slice the LLM polishes per /api/personalize
    * call — 0 disables the LLM polish pass entirely, serving the
    * embedding-similarity order on its own. See src/index.ts's
    * handlePersonalize. */
-  FEEDREADER_PERSONALIZE_POLISH_POOL_SIZE?: string;
+  SIGNAL_PERSONALIZE_POLISH_POOL_SIZE?: string;
   /** Set to "false" to disable the Workers AI toMarkdown fallback for
    * non-HTML and empty/truncated article previews. */
-  FEEDREADER_AI_PREVIEW_FALLBACK?: string;
+  SIGNAL_AI_PREVIEW_FALLBACK?: string;
   /** Set to "false" to disable the Browser Run fallback for JavaScript-
    * rendered HTML previews. */
-  FEEDREADER_BROWSER_PREVIEW_FALLBACK?: string;
+  SIGNAL_BROWSER_PREVIEW_FALLBACK?: string;
 }
