@@ -1,6 +1,6 @@
 # Rebrand and migration: `feedreader` → `signal.`
 
-Status: in progress — pre-flight and Phases 1–4 complete (2026-11-26)
+Status: in progress — pre-flight and Phases 1–5 complete (2026-11-26)
 Date: 2026-11-20
 
 This document plans the complete replacement of the `feedreader` product name and the `reader.` wordmark with `signal.` — canonical domain `signal.boringcode.dev` — including the public brand, internal identifiers, D1 data, browser storage, Cloudflare resources, the GitHub repository, and the docs.
@@ -504,18 +504,18 @@ git remote -v
 
 - [x] Update the CI badge URL and all repository links in `README.md` and `package.json`.
 - [x] Push the rebrand branch and open the PR. GitHub redirects old repository URLs, but update every link you control.
-- [ ] Optional: rename the local working directory (skipped; the working tree stays at `feedreader-edge`) after closing editors and agents:
+- [x] Optional: rename the local working directory after closing editors and agents — completed 2026-11-26; the checkout is now `/Users/eddie/code/boringcode-dev/boring-signal`:
 
 ```bash
 cd /Users/eddie/code/boringcode-dev
 mv feedreader-edge boring-signal
 ```
 
-- [ ] Reopen the repository at the new path (not applicable; local path unchanged) and confirm `git status` and `git remote -v`.
+- [x] Reopen the repository at the new path and confirm `git status` and `git remote -v` — confirmed clean working tree and remote `git@github.com:boringcode-dev/boring-signal.git`.
 
 ---
 
-> Phase 4 completed 2026-11-26. Repository renamed to `boringcode-dev/boring-signal`; the remote was updated and `chore/rebrand-signal` pushed with tracking; PR #32 is open against `main` (no merge). The optional local working-directory rename was skipped so the active checkout stays at `feedreader-edge`; badges and links were updated in Phase 1. Phase 5 verification is still required before merge.
+> Phase 4 completed 2026-11-26. Repository renamed to `boringcode-dev/boring-signal`; the remote was updated and `chore/rebrand-signal` pushed with tracking; PR #32 is open against `main` (no merge). The optional local working-directory rename is complete; the active checkout is now `/Users/eddie/code/boringcode-dev/boring-signal`. Badges and links were updated in Phase 1. Phase 5 verification is still required before merge.
 
 ---
 
@@ -538,13 +538,13 @@ curl -s https://signal.boringcode.dev/site.webmanifest | python3 -m json.tool
 
 Check:
 
-- [ ] `<title>` is `signal. — engineering and research signals`.
-- [ ] Manifest `name` is `Boring Signal`; `short_name` is `signal.`.
-- [ ] Manifest protocol handlers include `web+signal`; `web+feedreader` remains only for the transition release.
-- [ ] The OG image shows `signal.` and `signal.boringcode.dev`.
-- [ ] The favicon still renders the orange mark; its accessible label is “signal”.
-- [ ] The header, boot veil, install dialog, settings dialog, and footer use the new copy.
-- [ ] No document title, meta tag, alt text, or manifest field contains `reader.`.
+- [x] `<title>` is `signal. — engineering and research signals`.
+- [x] Manifest `name` is `Boring Signal`; `short_name` is `signal.`.
+- [x] Manifest protocol handlers include `web+signal`; `web+feedreader` remains only for the transition release.
+- [x] The OG image shows `signal.` and `signal.boringcode.dev`.
+- [x] The favicon still renders the orange mark; its accessible label is “signal”.
+- [x] The header, boot veil, install dialog, settings dialog, and footer use the new copy.
+- [x] No document title, meta tag, alt text, or manifest field contains `reader.`.
 
 ### 10.3 Browser storage
 
@@ -559,27 +559,31 @@ localStorage.setItem("feedreader.bookmarks", JSON.stringify([]));
 
 Then load the new site and check:
 
-- [ ] `signal.sources`, `signal.theme`, `signal.bookmarksEnabled`, and `signal.bookmarks` exist and have the old values.
-- [ ] The theme applies before first paint; there is no light/dark flash.
-- [ ] Saving settings writes `signal.*`, not `feedreader.*`.
-- [ ] During the transition release, the old keys remain for rollback; Phase 6 deletes them.
+- [x] `signal.sources`, `signal.theme`, `signal.bookmarksEnabled`, and `signal.bookmarks` exist and have the old values.
+- [x] The theme applies before first paint; there is no light/dark flash.
+- [x] Saving settings writes `signal.*`, not `feedreader.*`.
+- [x] During the transition release, the old keys remain for rollback; Phase 6 deletes them.
 
 ### 10.4 Runtime behavior
 
-- [ ] Search still works; the input id is `signal-search`.
-- [ ] Settings open, save, and persist.
-- [ ] Bookmarks persist across reload.
-- [ ] Source filters, `All`, `Saved`, and `For You` work.
-- [ ] Article preview works, including the AI and Browser Run fallbacks.
-- [ ] `/healthz` reports healthy sources.
-- [ ] Manual refresh works; `SELF` fan-out works; the cron is owned only by `boring-signal`.
-- [ ] Service worker caches are `signal-*`; old `reader-*` caches are deleted.
-- [ ] Offline mode still serves the last visited view.
-- [ ] `web+signal` opens the app; `web+feedreader` still opens it during the transition.
+- [x] Search still works; the input id is `signal-search`.
+- [x] Settings open, save, and persist.
+- [x] Bookmarks persist across reload.
+- [x] Source filters, `All`, `Saved`, and `For You` work.
+- [x] Article preview works, including the AI and Browser Run fallbacks.
+- [x] `/healthz` reports healthy sources.
+- [x] Manual refresh works; `SELF` fan-out works; the cron is owned only by `boring-signal`.
+- [x] Service worker caches are `signal-*`; old `reader-*` caches are deleted.
+- [x] Offline mode still serves the last visited view.
+- [ ] `web+signal` opens the app; `web+feedreader` still opens it during the transition — manifest and parser verified; OS-level protocol invocation remains manual.
 
 ### 10.5 D1 parity
 
 Run the row-count and timestamp checks in Appendix B against both databases. Counts must match before the old database is deleted.
+
+---
+
+> Phase 5 completed 2026-11-26. `npm run typecheck` clean; 239/239 tests; local migrations no-op. Production title/manifest/OG image (1200x630)/favicon label/header/boot-veil/install/settings/footer copy verified; no brand `reader.` in title/meta/alt/manifest fields (the inline theme script keeps the intentional `feedreader.` migration prefix). Browser storage: legacy sources/theme/bookmarks copies appear under `signal.*`, the `terminal` theme applied before paint, saving settings wrote `signal.theme` (legacy key retained), and the old keys remain for rollback. Search `?q=open+source` returned 12 cards; `?source=github` activated the GitHub filter with github.com results; Saved showed the 1 bookmarked item and For You/all showed 12. Preview API and panel verified (89 blocks); a 385 KB PDF exercised the Workers AI Markdown fallback successfully; the Browser Run adapter is covered by tests but was not forced live. `/healthz` reports `ok` with 2937 items; manual SELF refresh and cron ownership were reverified. Service-worker caches are `signal-shell-v152`/`signal-items-v25`; injected `reader-test`/`signal-stale` caches were deleted on activation; an offline reload of `?source=github` served 12 cached cards. D1: pre-cutover parity was 2933/2933; the new DB now has 2937 (4 Hugging Face items from the post-cutover refresh), and all 2933 old rows were verified present by per-source first-seen counts (698/1179/1056). Manual items: PWA install and OS-level `web+signal`/`web+feedreader` invocation.
 
 ---
 
