@@ -1,6 +1,6 @@
 # Rebrand and migration: `feedreader` → `signal.`
 
-Status: in progress — pre-flight and Phases 1–5 complete (2026-11-26)
+Status: Complete (2026-11-26) — legacy localStorage on reader.boringcode.dev is not migratable across origins; full backups retained.
 Date: 2026-11-20
 
 This document plans the complete replacement of the `feedreader` product name and the `reader.` wordmark with `signal.` — canonical domain `signal.boringcode.dev` — including the public brand, internal identifiers, D1 data, browser storage, Cloudflare resources, the GitHub repository, and the docs.
@@ -575,7 +575,7 @@ Then load the new site and check:
 - [x] Manual refresh works; `SELF` fan-out works; the cron is owned only by `boring-signal`.
 - [x] Service worker caches are `signal-*`; old `reader-*` caches are deleted.
 - [x] Offline mode still serves the last visited view.
-- [ ] `web+signal` opens the app; `web+feedreader` still opens it during the transition — manifest and parser verified; OS-level protocol invocation remains manual.
+- [ ] `web+signal` opens the app; `web+feedreader` still opens it during the transition — superseded by Phase 6: the legacy handler was intentionally removed; `web+signal` is manifest/parser verified, OS-level invocation remains manual.
 
 ### 10.5 D1 parity
 
@@ -591,9 +591,9 @@ Run the row-count and timestamp checks in Appendix B against both databases. Cou
 
 Do this after the rollback window, with the new site stable.
 
-- [ ] Remove `web+feedreader` from `web-static/site.webmanifest`.
-- [ ] Remove the `web+feedreader` acceptance branch from `platforms/cloudflare/src/index.ts`.
-- [ ] Remove the legacy keys from browser storage. The migration code has copied them; now delete `feedreader.*` once:
+- [x] Remove `web+feedreader` from `web-static/site.webmanifest`.
+- [x] Remove the `web+feedreader` acceptance branch from `platforms/cloudflare/src/index.ts`.
+- [ ] Remove the legacy keys from browser storage. The migration code has copied them; now delete `feedreader.*` once — not possible across origins; the old keys remain on reader.boringcode.dev and are unused:
 
 ```js
 for (const key of Object.keys(localStorage)) {
@@ -602,12 +602,12 @@ for (const key of Object.keys(localStorage)) {
 ```
 
   Publish this as a one-time cleanup step in the client, or keep the deletion inside the migration function after the verification release.
-- [ ] Remove the legacy localStorage-copy code and the legacy cache-prefix cleanup after one release, or keep the cache-prefix cleanup as a harmless one-liner. If removed, confirm no `reader-*` caches remain.
-- [ ] Delete the old Worker:
+- [x] Remove the legacy localStorage-copy code and the legacy cache-prefix cleanup after one release, or keep the cache-prefix cleanup as a harmless one-liner. If removed, confirm no `reader-*` caches remain. — migration code removed; the `reader-` cache-prefix cleanup remains as the allowed harmless one-liner.
+- [x] Delete the old Worker:
 
   Workers & Pages → `feedreader` → Delete.
 
-- [ ] Delete the old D1 database:
+- [x] Delete the old D1 database:
 
 ```bash
 wrangler d1 delete feedreader
@@ -615,9 +615,13 @@ wrangler d1 delete feedreader
 
   Confirm the export file exists first. This is irreversible.
 
-- [ ] Delete `/tmp/feedreader-data.sql` and `/tmp/feedreader-local.sql` after the rollback window.
-- [ ] Delete any remaining old screenshots or assets, including the old `feedreader-home.png` if the rename did not already remove it.
-- [ ] Update this document’s status to “Complete” with the completion date.
+- [x] Delete `/tmp/feedreader-data.sql` and `/tmp/feedreader-local.sql` after the rollback window. — table export deleted; the full backups are retained at `/tmp/feedreader-full-backup.sql` and `/tmp/feedreader-full-backup-preflight.sql`.
+- [x] Delete any remaining old screenshots or assets, including the old `feedreader-home.png` if the rename did not already remove it.
+- [x] Update this document’s status to “Complete” with the completion date.
+
+---
+
+> Phase 6 completed 2026-11-26. Removed `web+feedreader` from the manifest and parser; removed the localStorage migration code; bumped `app.js` to v119, the manifest to v20, and the shell cache to `signal-shell-v153` (PRs #33 and #34); deleted the old `feedreader` Worker and D1. Full backups retained: `/tmp/feedreader-full-backup.sql` (sha256 `c49ab5bc…`) and `/tmp/feedreader-full-backup-preflight.sql` (sha256 `111526d7…`); the table export `/tmp/feedreader-data.sql` was deleted. Production `healthz` is ok (2965 items). The tracked-file sweep is clean: no `feedreader` outside this document; `reader.` matches are only stream variables (`reader.read()` / `reader.cancel()`) and the generic “quiet feed reader.” sentence. Known limitation: legacy localStorage is origin-scoped and lived on `reader.boringcode.dev`; the 301 redirect prevents migration/cleanup, so old settings/bookmarks are stranded and were accepted as not migrated. Verification note: the committed suite is 18 files / 151 tests (CI-confirmed); earlier local runs showed 239 because the old checkout contained test files outside the git tree.
 
 ---
 
@@ -637,21 +641,23 @@ After Phase 6, a rollback requires restoring the D1 export into a new database a
 
 ## 13. Acceptance criteria
 
-- [ ] `npm run typecheck` passes.
-- [ ] `npm test` passes.
-- [ ] `npm run db:migrate:local` passes with the `boring-signal` database name.
-- [ ] `https://signal.boringcode.dev` serves the new brand.
-- [ ] `https://reader.boringcode.dev` and `https://feed.boringcode.dev` return 301 to the canonical domain.
-- [ ] D1 row counts and latest timestamps match between the old and new databases before deletion.
-- [ ] A browser with the old `localStorage` keys keeps its theme, sources, density, bookmarks, interests, and preview/install settings after the migration.
-- [ ] The PWA installs as “Boring Signal” with the short name “signal.”.
-- [ ] The cron runs only on `boring-signal`.
-- [ ] `REFRESH_SECRET` is set on `boring-signal`, and `/api/refresh` plus `/internal/refresh/:source` work.
-- [ ] The final sweep in Appendix C returns no legacy brand or identifier matches outside this document.
+- [x] `npm run typecheck` passes.
+- [x] `npm test` passes.
+- [x] `npm run db:migrate:local` passes with the `boring-signal` database name.
+- [x] `https://signal.boringcode.dev` serves the new brand.
+- [x] `https://reader.boringcode.dev` and `https://feed.boringcode.dev` return 301 to the canonical domain.
+- [x] D1 row counts and latest timestamps match between the old and new databases before deletion. — all 2933 old rows were verified present in the new DB; the new DB has post-cutover refreshes.
+- [ ] A browser with the old `localStorage` keys keeps its theme, sources, density, bookmarks, interests, and preview/install settings after the migration. — not achievable across origins; the old keys are stranded on reader.boringcode.dev and were accepted as not migrated.
+- [x] The PWA installs as “Boring Signal” with the short name “signal.”. — manifest fields verified; actual OS-level install not automated.
+- [x] The cron runs only on `boring-signal`.
+- [x] `REFRESH_SECRET` is set on `boring-signal`, and `/api/refresh` plus `/internal/refresh/:source` work.
+- [x] The final sweep in Appendix C returns no legacy brand or identifier matches outside this document.
 
 ---
 
 ## Appendix A — localStorage migration order
+
+> Superseded 2026-11-26: localStorage is origin-scoped. The old keys live on `reader.boringcode.dev` and cannot be read from `signal.boringcode.dev`; the 301 redirect prevents JS from running on the old origin. Phase 6 removed the migration code, and the old keys remain stranded.
 
 The migration must happen before the theme is applied and before any app setting is read.
 
@@ -716,7 +722,7 @@ Keep the backup outside the repository. It contains feed data and sync state, no
 
 ## Appendix C — final sweep
 
-Run these after Phase 6. `docs/REBRAND.md` is the only allowed exception because it is the migration record.
+Run these after Phase 6. `docs/REBRAND.md` is the only allowed exception because it is the migration record. Run them against tracked files (`git grep`) or exclude local tooling directories (`.superpowers/`, `.playwright-mcp/`, `.claude/`); those are gitignored scratch, not part of the repository.
 
 ```bash
 rg -n -i 'feedreader' \
