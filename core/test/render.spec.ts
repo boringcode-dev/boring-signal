@@ -36,7 +36,7 @@ describe("renderIndexPage", () => {
     expect(html).toContain(
       "<script>document.documentElement.dataset.theme='dark';</script>",
     );
-    expect(html).toContain('/static/app.js?v=118');
+    expect(html).toContain('/static/app.js?v=119');
     expect(html).not.toContain("style.css");
     expect(html).not.toContain("theme-init.js");
   });
@@ -68,7 +68,7 @@ describe("renderIndexPage", () => {
       '<meta name="twitter:image:alt" content="signal social preview showing branded feed cards for engineering and research sources" />',
     );
     expect(html).toContain(
-      '<link rel="manifest" href="/site.webmanifest?v=19" />',
+      '<link rel="manifest" href="/site.webmanifest?v=20" />',
     );
     expect(html).toContain('/favicon.svg?v=9');
   });
