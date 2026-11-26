@@ -14,20 +14,7 @@
   }
 
   try {
-    const readWithMigration = (key) => {
-      const currentKey = `signal.${key}`;
-      const legacyKey = `feedreader.${key}`;
-      const current = localStorage.getItem(currentKey);
-      if (current !== null) return current;
-      const legacy = localStorage.getItem(legacyKey);
-      if (legacy !== null) {
-        localStorage.setItem(currentKey, legacy);
-        return legacy;
-      }
-      return null;
-    };
-
-    const stored = readWithMigration("theme");
+    const stored = localStorage.getItem("signal.theme");
     const preference = stored === null ? "system" : stored;
     const resolved =
       preference === "system"
@@ -39,7 +26,7 @@
           : "dark";
     document.documentElement.dataset.theme = resolved;
 
-    const density = readWithMigration("uiDensity");
+    const density = localStorage.getItem("signal.uiDensity");
     if (density === "compact") {
       document.documentElement.dataset.uiDensity = "compact";
     }

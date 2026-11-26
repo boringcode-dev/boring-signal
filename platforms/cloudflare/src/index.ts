@@ -1019,7 +1019,7 @@ function normalizeProtocolAction(raw: string | null): {
 
   try {
     const url = new URL(raw);
-    if (url.protocol !== "web+signal:" && url.protocol !== "web+feedreader:") {
+    if (url.protocol !== "web+signal:") {
       return { source: "", query: "" };
     }
 
