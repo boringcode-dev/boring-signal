@@ -142,6 +142,7 @@ Key properties:
 - fetch failures do not wipe existing data
 - sources without a native article date fall back to the initial fetch time (`first_seen_at`) for ordering; the explicit GitHub view instead orders by `last_seen_at`, so repositories that re-enter Trending surface again
 - later refreshes preserve the original `published_at`/`first_seen_at` values; only the explicit GitHub view substitutes the refreshed `last_seen_at` for ordering and display
+- the weekly prune keeps the most recently seen GitHub items (matching the GitHub view) and the most recent published/first-seen items for the other sources
 - source fetches send a descriptive User-Agent, honor `Retry-After` on 429s, and cap error details; GitHub 429s show a concise rate-limit message while cached items remain, and Hugging Face reads its daily-papers JSON API instead of scraping the trending HTML page
 
 ---
