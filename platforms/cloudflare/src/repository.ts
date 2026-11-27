@@ -223,6 +223,10 @@ export class D1Repository implements FeedRepository {
   }
 
   async pruneOldItems(maxPerSource: number): Promise<number> {
+    // GitHub retention follows the explicit GitHub view: keep the most
+    // recently seen rows (and the current Trending order within a snapshot),
+    // so a re-trending repository is not pruned while it is visible at the
+    // top. Other sources keep the published/first-seen order.
     const { meta } = await this.db
       .prepare(
         `
@@ -231,8 +235,16 @@ export class D1Repository implements FeedRepository {
         SELECT id FROM (
           SELECT id, ROW_NUMBER() OVER (
             PARTITION BY source
-            ORDER BY coalesce(published_at, first_seen_at) DESC, first_seen_at DESC,
-              source_rank ASC, source ASC, external_id ASC
+            ORDER BY
+              CASE
+                WHEN source = 'github' THEN last_seen_at
+                ELSE coalesce(published_at, first_seen_at)
+              END DESC,
+              CASE WHEN source = 'github' THEN source_rank ELSE 0 END ASC,
+              first_seen_at DESC,
+              source_rank ASC,
+              source ASC,
+              external_id ASC
           ) AS rn
           FROM items
         )
