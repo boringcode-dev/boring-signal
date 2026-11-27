@@ -7,7 +7,11 @@
 import type { FeedItem, SyncState } from "../../../core/domain.ts";
 import type { FeedRepository } from "../../../core/ports.ts";
 import { itemKey } from "../../../core/personalize/rank.ts";
-import { paginate, sortFeedItems } from "../../../core/sources/listInMemory.ts";
+import {
+  fetchedAtForView,
+  paginate,
+  sortFeedItems,
+} from "../../../core/sources/listInMemory.ts";
 import { MODEL_ID as EMBEDDING_MODEL_ID } from "./embedder.ts";
 
 interface ItemRow {
@@ -23,6 +27,7 @@ interface ItemRow {
   source_rank: number;
   metadata_json: string;
   first_seen_at: string;
+  last_seen_at: string;
 }
 
 interface RankingItemRow extends ItemRow {
@@ -38,7 +43,7 @@ interface SyncStateRow {
 }
 
 const ITEM_COLUMNS =
-  "source, external_id, title, url, summary, author, score, comments_url, published_at, source_rank, metadata_json, first_seen_at";
+  "source, external_id, title, url, summary, author, score, comments_url, published_at, source_rank, metadata_json, first_seen_at, last_seen_at";
 // Only listFeedItemsForRanking needs embedding_json — keeping it off the
 // base ITEM_COLUMNS list means the home page and /api/items don't pay for
 // reading every item's (multi-KB) vector on every request.
@@ -165,7 +170,7 @@ export class D1Repository implements FeedRepository {
       )
       .bind(source, source, limit)
       .all<ItemRow>();
-    return results.map(rowToFeedItem);
+    return results.map((row) => rowToFeedItem(row));
   }
 
   async findItemByUrl(url: string): Promise<FeedItem | null> {
@@ -204,7 +209,9 @@ export class D1Repository implements FeedRepository {
       .prepare(query)
       .bind(...args)
       .all<ItemRow>();
-    const items = sortFeedItems(results.map(rowToFeedItem));
+    const items = sortFeedItems(
+      results.map((row) => rowToFeedItem(row, source)),
+    );
     return paginate(items, limit, offset);
   }
 
@@ -306,7 +313,7 @@ function sourceFilterClause(
   return { conditions: [], args: [] };
 }
 
-function rowToFeedItem(row: ItemRow): FeedItem {
+function rowToFeedItem(row: ItemRow, viewSource = ""): FeedItem {
   return {
     source: row.source,
     externalId: row.external_id,
@@ -317,7 +324,12 @@ function rowToFeedItem(row: ItemRow): FeedItem {
     score: row.score ?? undefined,
     commentsUrl: row.comments_url ?? undefined,
     publishedAt: row.published_at ?? undefined,
-    fetchedAt: row.first_seen_at,
+    fetchedAt: fetchedAtForView(
+      row.source,
+      row.first_seen_at,
+      row.last_seen_at,
+      viewSource,
+    ),
     sourceRank: row.source_rank,
     metadata: row.metadata_json ? JSON.parse(row.metadata_json) : {},
   };
