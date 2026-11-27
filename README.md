@@ -133,15 +133,15 @@ At a high level:
 
 1. source adapters fetch upstream content
 2. items are upserted into D1 by `(source, external_id)`
-3. the Worker reads stored items ordered by article date descending
+3. the Worker reads stored items ordered by article date descending (the explicit GitHub view orders by last-seen)
 4. the cron trigger refreshes hourly on wall-clock boundaries
 
 Key properties:
 
 - old items are retained in the database
 - fetch failures do not wipe existing data
-- sources without a native article date fall back to the initial fetch time (`first_seen_at`) for ordering
-- later refreshes preserve the original published/fetched ordering timestamps for existing items
+- sources without a native article date fall back to the initial fetch time (`first_seen_at`) for ordering; the explicit GitHub view instead orders by `last_seen_at`, so repositories that re-enter Trending surface again
+- later refreshes preserve the original `published_at`/`first_seen_at` values; only the explicit GitHub view substitutes the refreshed `last_seen_at` for ordering and display
 - source fetches send a descriptive User-Agent, honor `Retry-After` on 429s, and cap error details; GitHub 429s show a concise rate-limit message while cached items remain, and Hugging Face reads its daily-papers JSON API instead of scraping the trending HTML page
 
 ---

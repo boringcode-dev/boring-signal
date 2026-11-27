@@ -12,6 +12,23 @@
 
 import type { FeedItem } from "../domain.ts";
 
+/**
+ * The explicit GitHub view exposes `last_seen_at` as the card's fetched date,
+ * so a repository that re-enters GitHub Trending surfaces at the top with the
+ * date of its latest appearance. Every other view keeps `first_seen_at`.
+ * Card rendering and feed ordering both consume the resulting `fetchedAt`.
+ */
+export function fetchedAtForView(
+  source: string,
+  firstSeenAt: string,
+  lastSeenAt: string,
+  viewSource: string,
+): string {
+  return viewSource.trim().toLowerCase() === "github" && source === "github"
+    ? lastSeenAt
+    : firstSeenAt;
+}
+
 function effectiveSortTimeMs(item: FeedItem): number {
   const iso = item.publishedAt ?? item.fetchedAt;
   return iso ? Date.parse(iso) : 0;

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { FeedItem } from "../domain.ts";
 import {
+  fetchedAtForView,
   filterFeedItems,
   paginate,
   sortFeedItems,
@@ -17,6 +18,73 @@ function item(overrides: Partial<FeedItem>): FeedItem {
     ...overrides,
   };
 }
+
+describe("fetchedAtForView", () => {
+  const firstSeen = "2026-06-01T00:00:00.000Z";
+  const lastSeen = "2026-11-26T00:00:00.000Z";
+
+  it("uses last_seen_at for GitHub in the explicit GitHub view", () => {
+    expect(fetchedAtForView("github", firstSeen, lastSeen, "github")).toBe(
+      lastSeen,
+    );
+  });
+
+  it("keeps first_seen_at in the All view", () => {
+    expect(fetchedAtForView("github", firstSeen, lastSeen, "")).toBe(firstSeen);
+  });
+
+  it("keeps first_seen_at for non-GitHub sources", () => {
+    expect(
+      fetchedAtForView("hackernews", firstSeen, lastSeen, "github"),
+    ).toBe(firstSeen);
+  });
+
+  it("surfaces a re-trending GitHub repo in the GitHub view but not in All", () => {
+    const reTrending = item({
+      source: "github",
+      externalId: "re-trending",
+      fetchedAt: fetchedAtForView("github", firstSeen, lastSeen, "github"),
+      sourceRank: 1,
+    });
+    const newerFirstSeen = item({
+      source: "github",
+      externalId: "newer-first-seen",
+      fetchedAt: fetchedAtForView(
+        "github",
+        "2026-11-20T00:00:00.000Z",
+        "2026-11-20T00:00:00.000Z",
+        "github",
+      ),
+      sourceRank: 2,
+    });
+    expect(
+      sortFeedItems([newerFirstSeen, reTrending]).map((i) => i.externalId),
+    ).toEqual(["re-trending", "newer-first-seen"]);
+
+    const reTrendingAll = item({
+      source: "github",
+      externalId: "re-trending",
+      fetchedAt: fetchedAtForView("github", firstSeen, lastSeen, ""),
+      sourceRank: 1,
+    });
+    const newerFirstSeenAll = item({
+      source: "github",
+      externalId: "newer-first-seen",
+      fetchedAt: fetchedAtForView(
+        "github",
+        "2026-11-20T00:00:00.000Z",
+        "2026-11-20T00:00:00.000Z",
+        "",
+      ),
+      sourceRank: 2,
+    });
+    expect(
+      sortFeedItems([reTrendingAll, newerFirstSeenAll]).map(
+        (i) => i.externalId,
+      ),
+    ).toEqual(["newer-first-seen", "re-trending"]);
+  });
+});
 
 describe("sortFeedItems", () => {
   it("orders by effective date desc, then first-seen desc, then rank/source/id", () => {

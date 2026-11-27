@@ -14,6 +14,11 @@ export interface FeedItem {
   score?: number;
   commentsUrl?: string;
   publishedAt?: string;
+  /**
+   * First-seen timestamp for the item. The explicit GitHub source view
+   * substitutes `last_seen_at` here so re-trending repositories sort by their
+   * latest appearance; every other view keeps the first-seen value.
+   */
   fetchedAt?: string;
   sourceRank: number;
   metadata: Record<string, unknown>;
