@@ -87,6 +87,23 @@ npx lighthouse https://signal.boringcode.dev --view
 
 ---
 
+## Desktop app
+
+The same feed is available as a macOS menu-bar app:
+[boring-signal-desktop](https://github.com/boringcode-dev/boring-signal-desktop).
+It requires macOS 14+ on Apple Silicon and installs through the
+[Homebrew tap](https://github.com/boringcode-dev/homebrew-tap):
+
+```bash
+brew tap boringcode-dev/tap
+brew trust boringcode-dev/tap
+brew install --cask boringcode-dev/tap/boring-signal-desktop
+```
+
+The desktop app loads this site live, so the feed and behavior stay in sync.
+
+---
+
 ## Why signal?
 
 `signal.` is designed for people who want a small, understandable app instead of a large feed platform.
